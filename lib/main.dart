@@ -1,8 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:swms/screens/home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
+import 'package:swms/screens/registration_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -12,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.grey),
+      decoration: BoxDecoration(color: Colors.grey[300]),
       child: SafeArea(
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -21,7 +25,12 @@ class MyApp extends StatelessWidget {
               bottomNavigationBarTheme:
                   BottomNavigationBarThemeData(backgroundColor: Colors.white),
               scaffoldBackgroundColor: Colors.blueGrey[50]),
-          home: LoginScreen(),
+          initialRoute: UserHomeScreen.id,
+          routes: {
+            LoginScreen.id: (context) => LoginScreen(),
+            RegistrationScreen.id: (context) => RegistrationScreen(),
+            UserHomeScreen.id: (context) => UserHomeScreen(),
+          },
         ),
       ),
     );

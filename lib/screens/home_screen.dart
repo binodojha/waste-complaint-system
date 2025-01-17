@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:swms/components/waste_report_form.dart';
 
 class UserHomeScreen extends StatelessWidget {
-  const UserHomeScreen({super.key});
+  static String id = 'home_screen';
+  UserHomeScreen({super.key});
+  final _auth = FirebaseAuth.instance;
+
+  void getCurrentUser() async {
+    final user = await _auth.currentUser;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: NavigationBar(),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -15,13 +24,6 @@ class UserHomeScreen extends StatelessWidget {
               'assets/images/logo.png',
               width: 100,
             ),
-            // Text(
-            //   "Safaii Sathi",
-            //   style: TextStyle(
-            //     fontSize: 20,
-            //     fontWeight: FontWeight.bold,
-            //   ),
-            // ),
             CircleAvatar(
               backgroundImage: AssetImage(''),
             ),
@@ -82,7 +84,13 @@ class UserHome extends StatelessWidget {
             foregroundColor: Colors.white,
             backgroundColor: Color.fromARGB(1000, 5, 150, 105),
           ),
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return ReportForm();
+                });
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
