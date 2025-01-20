@@ -24,9 +24,9 @@ class UserHomeScreen extends StatelessWidget {
               'assets/images/logo.png',
               width: 100,
             ),
-            CircleAvatar(
-              backgroundImage: AssetImage(''),
-            ),
+            // CircleAvatar(
+            //     // backgroundImage: AssetImage(''),
+            //     ),
           ],
         ),
       ),
