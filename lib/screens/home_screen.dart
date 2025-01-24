@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:swms/components/waste_report_form.dart';
+import 'package:swms/components/navigation_bar.dart';
 
-class UserHomeScreen extends StatelessWidget {
+class UserHomeScreen extends StatefulWidget {
   static String id = 'home_screen';
   UserHomeScreen({super.key});
-  final _auth = FirebaseAuth.instance;
 
-  void getCurrentUser() async {
-    final user = await _auth.currentUser;
-  }
+  @override
+  State<UserHomeScreen> createState() => _UserHomeScreenState();
+}
+
+class _UserHomeScreenState extends State<UserHomeScreen> {
+  // final _auth = FirebaseAuth.instance;
+
+  void getCurrentUser() async {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavigationBar(),
+      bottomNavigationBar: NavBar(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Row(
@@ -40,7 +45,6 @@ class UserHomeScreen extends StatelessWidget {
 }
 
 // User Main Body
-
 class UserHome extends StatelessWidget {
   const UserHome({super.key});
 
@@ -50,7 +54,7 @@ class UserHome extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Upcoming Pickups",
+          "Complaints",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 25,
@@ -65,7 +69,7 @@ class UserHome extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(10.0),
           ),
-          child: Text(""),
+          child: Text(''),
         ),
         SizedBox(
           height: 30,
@@ -100,41 +104,11 @@ class UserHome extends StatelessWidget {
               SizedBox(
                 width: 10,
               ),
-              Text("Report Missed PickUp"),
+              Text("Report a Waste Pickup"),
             ],
           ),
         ),
       ],
     ));
-  }
-}
-
-// Bottom Navigation Bar
-class NavigationBar extends StatelessWidget {
-  const NavigationBar({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      iconSize: 22,
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: "Home",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: "Alerts",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.report),
-          label: "Report",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_4_sharp),
-          label: "Profile",
-        ),
-      ],
-    );
   }
 }

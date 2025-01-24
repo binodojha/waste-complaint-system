@@ -3,8 +3,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Map extends StatefulWidget {
-  final Function(String)
-      onLocationSelected; //Accept the callback as the parameter
+  //Accept the callback as the parameter
+  final Function(String) onLocationSelected;
   const Map({super.key, required this.onLocationSelected});
   @override
   State<Map> createState() => _MapState();
