@@ -64,7 +64,7 @@ class _ReportFormState extends State<ReportForm> {
                 }
                 return null;
               },
-              maxLength: 20,
+              maxLength: 15,
               decoration: InputDecoration(
                 hintText: "Title",
                 // labelText: "Title",

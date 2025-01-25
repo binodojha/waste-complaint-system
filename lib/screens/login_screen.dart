@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.pushNamed(context, UserHomeScreen.id);
                         }
                       } catch (e) {
-                        print(e);
+                        // exception handling
                       }
                     },
                     style: ElevatedButton.styleFrom(

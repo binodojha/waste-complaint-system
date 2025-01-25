@@ -20,8 +20,7 @@ class _MapState extends State<Map> {
         await placemarkFromCoordinates(value.latitude, value.longitude);
 
     if (result.isNotEmpty) {
-      address =
-          '${result[0].name} ${result[0].locality} ${result[0].administrativeArea}';
+      address = '${result[0].name} ${result[0].locality}';
       setState(() {});
     }
     // call the callback function to pass the address to the parent widget

@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
               bottomNavigationBarTheme:
                   BottomNavigationBarThemeData(backgroundColor: Colors.white),
               scaffoldBackgroundColor: Colors.blueGrey[50]),
-          initialRoute: LoginScreen.id,
+          initialRoute: UserHomeScreen.id,
           routes: {
             LoginScreen.id: (context) => LoginScreen(),
             RegistrationScreen.id: (context) => RegistrationScreen(),
