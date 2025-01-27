@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:swms/screens/home_screen.dart';
+import 'package:swms/screens/admin/admin_screen.dart';
+import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
             LoginScreen.id: (context) => LoginScreen(),
             RegistrationScreen.id: (context) => RegistrationScreen(),
             UserHomeScreen.id: (context) => UserHomeScreen(),
+            AdminScreen.id: (context) => AdminScreen(),
           },
         ),
       ),

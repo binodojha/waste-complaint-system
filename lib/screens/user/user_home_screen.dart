@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swms/components/waste_report_form.dart';
-import 'package:swms/components/navigation_bar.dart';
+import 'package:swms/components/user_navigation_bar.dart';
 
 class UserHomeScreen extends StatefulWidget {
   static String id = 'home_screen';
@@ -12,7 +12,6 @@ class UserHomeScreen extends StatefulWidget {
   State<UserHomeScreen> createState() => _UserHomeScreenState();
 }
 
-final _auth = FirebaseAuth.instance;
 final _firestore = FirebaseFirestore.instance;
 final loggedInUser = FirebaseAuth.instance.currentUser?.email!;
 
@@ -48,16 +47,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 // User Main Body
 class UserHome extends StatelessWidget {
   UserHome({super.key});
-
-  void messagesStream() async {
-    await for (var snapshot
-        in _firestore.collection('complaints').snapshots()) {
-      for (var message in snapshot.docs) {
-        print(message.data);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return (Column(
@@ -130,11 +119,14 @@ class AllComplaints extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('complaints').snapshots(),
+        stream: _firestore
+            .collection('complaints')
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
         builder: (context, snapshot) {
           List<Container> complaintWidgets = [];
           if (snapshot.hasData) {
-            final complaints = snapshot.data?.docs.reversed.toList();
+            final complaints = snapshot.data?.docs;
             for (var complaint in complaints!) {
               if (complaint['status'] == 'pending') {
                 statusDecoration = BoxDecoration(
@@ -162,7 +154,6 @@ class AllComplaints extends StatelessWidget {
                 final complaintWidget = Container(
                   margin: EdgeInsets.only(top: 10),
                   padding: EdgeInsets.all(10),
-                  // width: double.infinity,
                   height: 60,
                   width: double.maxFinite,
                   decoration: BoxDecoration(
@@ -212,6 +203,21 @@ class AllComplaints extends StatelessWidget {
                 complaintWidgets.add(complaintWidget);
               }
             }
+          }
+          if (complaintWidgets.isEmpty) {
+            return Container(
+              child: Center(
+                child: Text(
+                  "No complaints Yet!",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            );
           }
           return SingleChildScrollView(
             scrollDirection: Axis.vertical,

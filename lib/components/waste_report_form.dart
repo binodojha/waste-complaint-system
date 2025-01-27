@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:swms/components/map_google.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ReportForm extends StatefulWidget {
   static String id = 'report_form';
@@ -20,6 +23,7 @@ class _ReportFormState extends State<ReportForm> {
   final _reportFormKey = GlobalKey<FormState>();
   String status = 'pending';
   String? loggedInUser;
+  File? newImage;
   @override
   void initState() {
     super.initState();
@@ -28,6 +32,19 @@ class _ReportFormState extends State<ReportForm> {
 
   void updateLocation(String newLocation) {
     locationController.text = newLocation;
+  }
+
+  Future pickImage(ImageSource source) async {
+    try {
+      final image = await ImagePicker().pickImage(source: source);
+      if (image == null) return;
+      final imageTemporary = File(image!.path);
+      setState(() {
+        newImage = imageTemporary;
+      });
+    } on PlatformException catch (e) {
+      print('failed to pick image:$e');
+    }
   }
 
   @override
@@ -88,6 +105,73 @@ class _ReportFormState extends State<ReportForm> {
             SizedBox(
               height: 10,
             ),
+            InkWell(
+              onTap: () => {
+                showModalBottomSheet(
+                    useSafeArea: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        height: 120,
+                        width: double.infinity,
+                        // color: Color.fromARGB(1000, 5, 150, 105),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            imagePickButton(
+                              title: "Gallery",
+                              icon: Icons.image_sharp,
+                              onClicked: () => pickImage(ImageSource.gallery),
+                            ),
+                            imagePickButton(
+                                title: "Camera",
+                                icon: Icons.camera_alt,
+                                onClicked: () => pickImage(ImageSource.camera)),
+                          ],
+                        ),
+                      );
+                    })
+              },
+              child: Container(
+                height: 100,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: newImage != null
+                    ? Image.file(
+                        newImage!,
+                      )
+                    : Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Upload Image",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Icon(
+                              Icons.image,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
             TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -128,7 +212,9 @@ class _ReportFormState extends State<ReportForm> {
                         'description': descriptionController.text,
                         'location': locationController.text,
                         'status': status,
-                        'email': loggedInUser
+                        'email': loggedInUser,
+                        // 'image': newImage,
+                        'timestamp': FieldValue.serverTimestamp()
                       },
                     );
                   }
@@ -153,4 +239,41 @@ class _ReportFormState extends State<ReportForm> {
       ),
     );
   }
+}
+
+Widget imagePickButton({
+  required String title,
+  required IconData icon,
+  required VoidCallback onClicked,
+}) {
+  return Padding(
+    padding: EdgeInsets.only(
+      left: 10.0,
+      top: 5.0,
+      bottom: 5.0,
+    ),
+    child: ElevatedButton(
+      onPressed: onClicked,
+      style: ElevatedButton.styleFrom(
+        iconSize: 30,
+        iconColor: Colors.grey,
+        shape: BeveledRectangleBorder(
+          borderRadius: BorderRadius.circular(2.0),
+        ),
+      ),
+      child: Row(
+        spacing: 15.0,
+        children: [
+          Icon(
+            icon,
+          ),
+          Text(title,
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+              )),
+        ],
+      ),
+    ),
+  );
 }
