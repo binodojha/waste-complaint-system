@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,7 +50,7 @@ class UserHome extends StatelessWidget {
   UserHome({super.key});
   @override
   Widget build(BuildContext context) {
-    return (Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -108,7 +109,7 @@ class UserHome extends StatelessWidget {
           ),
         ),
       ],
-    ));
+    );
   }
 }
 
@@ -170,6 +171,12 @@ class AllComplaints extends StatelessWidget {
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Image.memory(
+                          base64Decode(complaint['image']),
                         ),
                         SizedBox(
                           width: 15,

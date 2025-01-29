@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:swms/screens/admin/admin_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
 
@@ -15,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final loggedInUser = FirebaseAuth.instance.currentUser?.email!;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +99,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           password: passwordController.text,
                         );
                         if (user != null) {
-                          Navigator.pushNamed(context, UserHomeScreen.id);
+                          if (loggedInUser == 'binodojha1@gmail.com') {
+                            Navigator.pushNamed(context, AdminScreen.id);
+                          } else {
+                            Navigator.pushNamed(context, UserHomeScreen.id);
+                          }
                         }
                       } catch (e) {
                         // exception handling

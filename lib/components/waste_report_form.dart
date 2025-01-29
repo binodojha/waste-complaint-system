@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +26,7 @@ class _ReportFormState extends State<ReportForm> {
   String status = 'pending';
   String? loggedInUser;
   File? newImage;
+  String? base64ImageString;
   @override
   void initState() {
     super.initState();
@@ -42,6 +45,8 @@ class _ReportFormState extends State<ReportForm> {
       setState(() {
         newImage = imageTemporary;
       });
+      List<int> imageBytes = File(newImage!.path).readAsBytesSync();
+      base64ImageString = base64Encode(imageBytes);
     } on PlatformException catch (e) {
       print('failed to pick image:$e');
     }
@@ -76,7 +81,7 @@ class _ReportFormState extends State<ReportForm> {
             TextFormField(
               controller: titleController,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.isEmpty || value.length < 5) {
                   return 'Please enter some text';
                 }
                 return null;
@@ -117,7 +122,7 @@ class _ReportFormState extends State<ReportForm> {
                       return Container(
                         height: 120,
                         width: double.infinity,
-                        // color: Color.fromARGB(1000, 5, 150, 105),
+                        color: Color.fromARGB(1000, 5, 150, 105),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -213,7 +218,7 @@ class _ReportFormState extends State<ReportForm> {
                         'location': locationController.text,
                         'status': status,
                         'email': loggedInUser,
-                        // 'image': newImage,
+                        'image': base64ImageString ?? "",
                         'timestamp': FieldValue.serverTimestamp()
                       },
                     );
@@ -227,7 +232,8 @@ class _ReportFormState extends State<ReportForm> {
                   ),
                   padding: EdgeInsets.all(15),
                   shape: BeveledRectangleBorder(
-                      borderRadius: BorderRadius.circular(4)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   foregroundColor: Colors.white,
                   backgroundColor: Color.fromARGB(1000, 5, 150, 105),
                 ),
@@ -241,6 +247,7 @@ class _ReportFormState extends State<ReportForm> {
   }
 }
 
+// Image Pick Button
 Widget imagePickButton({
   required String title,
   required IconData icon,
@@ -256,7 +263,8 @@ Widget imagePickButton({
       onPressed: onClicked,
       style: ElevatedButton.styleFrom(
         iconSize: 30,
-        iconColor: Colors.grey,
+        iconColor: Colors.black,
+        backgroundColor: Color.fromARGB(255, 70, 255, 196),
         shape: BeveledRectangleBorder(
           borderRadius: BorderRadius.circular(2.0),
         ),
