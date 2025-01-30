@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:swms/utils/firebase_serivce.dart';
 import 'package:swms/components/admin_navigation_bar.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -13,7 +11,7 @@ class AdminScreen extends StatefulWidget {
   State<AdminScreen> createState() => _AdminScreenState();
 }
 
-FirebaseFirestore _firestore = FirebaseFirestore.instance;
+final FirebaseSerivce _firebaseService = FirebaseSerivce();
 
 class _AdminScreenState extends State<AdminScreen> {
   int? expandedIndex;
@@ -49,37 +47,69 @@ class _AdminScreenState extends State<AdminScreen> {
       body: Container(
         decoration: BoxDecoration(),
         margin: EdgeInsets.only(left: 20, right: 20, top: 30),
-        child: StreamBuilder(
-          stream: _firestore.collection('complaints').snapshots(),
-          builder: (context, snapshot) {
-            var complaints = snapshot.data!.docs.map((doc) {
-              return {
-                'id': doc.id,
-                'title': doc['title'],
-                'description': doc['description'],
-                'location': doc['location'],
-                'email': doc['email'],
-                'image': doc['image'],
-                'timestamp': doc['timestamp'],
-                'status': doc['status'],
-              };
-            }).toList();
-            return ListView.builder(
-              itemCount: complaints.length,
-              itemBuilder: (context, index) {
-                return ExpandableComplaintCard(
-                  id: complaints[index]['id'],
-                  title: complaints[index]['title'],
-                  description: complaints[index]['description'],
-                  location: complaints[index]['location'],
-                  status: complaints[index]['status'],
-                  image: complaints[index]['image'],
-                  onTap: () => toggleExpansion(index),
-                  isExpanded: expandedIndex == index,
-                );
-              },
-            );
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Dashboard",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              height: 150,
+              width: double.maxFinite,
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ComplaintsDashboard(),
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            Text(
+              "Complaints",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Expanded(
+              child: StreamBuilder(
+                stream: _firebaseService.getComplaints(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  var complaints = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: complaints.length,
+                    itemBuilder: (context, index) {
+                      return ExpandableComplaintCard(
+                        id: complaints[index]['id'],
+                        title: complaints[index]['title'],
+                        description: complaints[index]['description'],
+                        location: complaints[index]['location'],
+                        status: complaints[index]['status'],
+                        image: complaints[index]['image'],
+                        onTap: () => toggleExpansion(index),
+                        isExpanded: expandedIndex == index,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -117,10 +147,7 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
   String? updatedStatus;
   void updatStatus(BuildContext context, String docId, String newStatus) async {
     try {
-      await _firestore.collection('complaints').doc(docId).update({
-        'status': newStatus,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      await _firebaseService.updateComplaintStatus(docId, newStatus);
       setState(() {
         updatedStatus = newStatus;
       });
@@ -143,7 +170,7 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 400),
         curve: Curves.easeInOut,
-        margin: EdgeInsets.only(bottom: 10),
+        margin: EdgeInsets.only(bottom: 15),
         padding: EdgeInsets.only(left: 10, right: 20, bottom: 5, top: 5),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -201,18 +228,18 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                 Row(
                   children: [
                     displayStatus == 'pending'
-                        ? ActionButton(
+                        ? actionButton(
                             title: 'Accept',
                             icon: Icons.check,
                             onClicked: () =>
-                                updatStatus(context, widget.id, 'In Progress'),
+                                updatStatus(context, widget.id, 'Approved'),
                           )
                         : Container(),
                     SizedBox(
                       width: 20,
                     ),
                     displayStatus == 'pending'
-                        ? ActionButton(
+                        ? actionButton(
                             title: 'Reject',
                             icon: Icons.close,
                             onClicked: () =>
@@ -229,7 +256,148 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
   }
 }
 
-Widget ActionButton({
+class ComplaintsDashboard extends StatelessWidget {
+  const ComplaintsDashboard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: _firebaseService.getComplaints(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          var complaints = snapshot.data!;
+          // Count the complaints
+          String totalComplaintsInt = complaints.length.toString();
+          String pendingComplaintsInt = complaints
+              .where((c) => c['status'] == 'pending')
+              .length
+              .toString();
+          String completedComplaintsInt = complaints
+              .where((c) => c['status'] == 'Completed')
+              .length
+              .toString();
+          String inProgressComplaintsInt = complaints
+              .where((c) => c['status'] == 'In Progress')
+              .length
+              .toString();
+          String approvedComplaintsInt = complaints
+              .where((c) => c['status'] == 'Approved')
+              .length
+              .toString();
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              complaintNumberWidget(
+                  statusTitle: 'Total Complaints',
+                  numberTitle: totalComplaintsInt,
+                  color: Color.fromARGB(1000, 5, 150, 105),
+                  statusTitleSize: 15.0,
+                  numberTitleSize: 20.0),
+              SizedBox(
+                width: 15,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      complaintNumberWidget(
+                        statusTitle: 'Pending',
+                        numberTitle: pendingComplaintsInt,
+                        color: Colors.amber[500],
+                        statusTitleSize: 15.0,
+                        numberTitleSize: 20.0,
+                        width: 92.0,
+                      ),
+                      SizedBox(
+                        width: 12,
+                      ),
+                      complaintNumberWidget(
+                        statusTitle: 'Approved',
+                        numberTitle: approvedComplaintsInt,
+                        color: Colors.blueAccent,
+                        statusTitleSize: 15.0,
+                        numberTitleSize: 20.0,
+                        width: 92.0,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      complaintNumberWidget(
+                        statusTitle: 'In Progress',
+                        numberTitle: inProgressComplaintsInt,
+                        color: Colors.green,
+                        statusTitleSize: 15.0,
+                        numberTitleSize: 20.0,
+                        width: 92.0,
+                      ),
+                      SizedBox(
+                        width: 12,
+                      ),
+                      complaintNumberWidget(
+                        statusTitle: 'Completed',
+                        numberTitle: completedComplaintsInt,
+                        color: Colors.lightGreen,
+                        statusTitleSize: 15.0,
+                        numberTitleSize: 20.0,
+                        width: 92.0,
+                      ),
+                    ],
+                  )
+                ],
+              )
+            ],
+          );
+        });
+  }
+}
+
+Widget complaintNumberWidget({
+  required String statusTitle,
+  required String numberTitle,
+  required color,
+  required statusTitleSize,
+  required numberTitleSize,
+  width,
+  height,
+}) {
+  TextStyle commonTextStyle = TextStyle(
+    color: Colors.white,
+    fontWeight: FontWeight.bold,
+  );
+  return Container(
+    width: width,
+    height: height,
+    padding: EdgeInsets.symmetric(horizontal: 5),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          statusTitle,
+          style: commonTextStyle.copyWith(
+            fontSize: statusTitleSize,
+          ),
+        ),
+        Text(
+          numberTitle,
+          style: commonTextStyle.copyWith(
+            fontSize: numberTitleSize,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget actionButton({
   required String title,
   required IconData icon,
   required VoidCallback onClicked,
@@ -242,12 +410,14 @@ Widget ActionButton({
       shape: LinearBorder(),
     ),
     child: Row(
-      spacing: 10.0,
       children: [
         Icon(
           icon,
           color: Colors.white,
           size: 20,
+        ),
+        SizedBox(
+          width: 10,
         ),
         Text(
           title,

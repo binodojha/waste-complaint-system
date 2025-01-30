@@ -1,0 +1,34 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class FirebaseSerivce {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // fetch data from complaints documents
+  Stream<List<Map<String, dynamic>>> getComplaints() {
+    return _firestore.collection('complaints').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'title': doc['title'],
+          'description': doc['description'],
+          'location': doc['location'],
+          'email': doc['email'],
+          'image': doc['image'],
+          'timestamp': doc['timestamp'],
+          'status': doc['status'],
+        };
+      }).toList();
+    });
+  }
+
+  // Update status field in complaints document
+  Future<void> updateComplaintStatus(String docId, String newStatus) async {
+    try {
+      await _firestore.collection('complaints').doc(docId).update({
+        'status': newStatus,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception("Error updating complaint status: $e");
+    }
+  }
+}
