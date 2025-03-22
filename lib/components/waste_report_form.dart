@@ -7,6 +7,7 @@ import 'package:swms/components/map_google.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:swms/utils/image_compress.dart';
 
 class ReportForm extends StatefulWidget {
   static String id = 'report_form';
@@ -39,13 +40,17 @@ class _ReportFormState extends State<ReportForm> {
 
   Future pickImage(ImageSource source) async {
     try {
-      final image = await ImagePicker().pickImage(source: source);
-      if (image == null) return;
-      final imageTemporary = File(image!.path);
+      final pickedImage = await ImagePicker().pickImage(source: source);
+      if (pickedImage == null) return null;
+      final imageTemporary = File(pickedImage!.path);
       setState(() {
         newImage = imageTemporary;
       });
-      List<int> imageBytes = File(newImage!.path).readAsBytesSync();
+      // compress image
+      File? compressedImage = await compressImage(imageTemporary);
+      if (compressedImage == null) return null;
+      // Convert to base64
+      List<int> imageBytes = await compressedImage.readAsBytes();
       base64ImageString = base64Encode(imageBytes);
     } on PlatformException catch (e) {
       print('failed to pick image:$e');
@@ -99,6 +104,11 @@ class _ReportFormState extends State<ReportForm> {
               controller: descriptionController,
               keyboardType: TextInputType.multiline,
               maxLines: 4,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please Enter description!';
+                }
+              },
               decoration: InputDecoration(
                 hintText: "Description",
                 // labelText: "Title",
@@ -211,17 +221,21 @@ class _ReportFormState extends State<ReportForm> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_reportFormKey.currentState!.validate()) {
-                    _firestore.collection('complaints').add(
-                      {
-                        'title': titleController.text,
-                        'description': descriptionController.text,
-                        'location': locationController.text,
-                        'status': status,
-                        'email': loggedInUser,
-                        'image': base64ImageString ?? "",
-                        'timestamp': FieldValue.serverTimestamp()
-                      },
-                    );
+                    try {
+                      _firestore.collection('complaints').add(
+                        {
+                          'title': titleController.text,
+                          'description': descriptionController.text,
+                          'location': locationController.text,
+                          'status': status,
+                          'email': loggedInUser,
+                          'image': base64ImageString,
+                          'timestamp': FieldValue.serverTimestamp()
+                        },
+                      );
+                    } catch (e) {
+                      print("Firestore Error: $e");
+                    }
                   }
                   Navigator.pop(context);
                 },

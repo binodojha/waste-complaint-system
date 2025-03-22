@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:swms/screens/admin/admin_screen.dart';
+import 'package:swms/screens/user/user_home_screen.dart';
 
 class AdminNavBar extends StatelessWidget {
-  const AdminNavBar({super.key});
+  final int currentIndex;
+  const AdminNavBar({super.key, this.currentIndex = 0});
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      showSelectedLabels: true,
+      showUnselectedLabels: true,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.blueGrey,
       type: BottomNavigationBarType.fixed,
       iconSize: 22,
-      items: [
+      currentIndex: currentIndex,
+      onTap: (index) {
+        if (index == 0 && currentIndex != 0) {
+          Navigator.pushReplacementNamed(context, AdminScreen.id);
+        } else if (index == 2 && currentIndex != 2) {
+          Navigator.pushReplacementNamed(context, UserHomeScreen.id);
+        }
+      },
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: "Home",

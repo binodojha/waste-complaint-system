@@ -286,71 +286,74 @@ class ComplaintsDashboard extends StatelessWidget {
               .where((c) => c['status'] == 'Approved')
               .length
               .toString();
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              complaintNumberWidget(
-                  statusTitle: 'Total Complaints',
-                  numberTitle: totalComplaintsInt,
-                  color: Color.fromARGB(1000, 5, 150, 105),
-                  statusTitleSize: 15.0,
-                  numberTitleSize: 20.0),
-              SizedBox(
-                width: 15,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      complaintNumberWidget(
-                        statusTitle: 'Pending',
-                        numberTitle: pendingComplaintsInt,
-                        color: Colors.amber[500],
-                        statusTitleSize: 15.0,
-                        numberTitleSize: 20.0,
-                        width: 92.0,
-                      ),
-                      SizedBox(
-                        width: 12,
-                      ),
-                      complaintNumberWidget(
-                        statusTitle: 'Approved',
-                        numberTitle: approvedComplaintsInt,
-                        color: Colors.blueAccent,
-                        statusTitleSize: 15.0,
-                        numberTitleSize: 20.0,
-                        width: 92.0,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      complaintNumberWidget(
-                        statusTitle: 'In Progress',
-                        numberTitle: inProgressComplaintsInt,
-                        color: Colors.green,
-                        statusTitleSize: 15.0,
-                        numberTitleSize: 20.0,
-                        width: 92.0,
-                      ),
-                      SizedBox(
-                        width: 12,
-                      ),
-                      complaintNumberWidget(
-                        statusTitle: 'Completed',
-                        numberTitle: completedComplaintsInt,
-                        color: Colors.lightGreen,
-                        statusTitleSize: 15.0,
-                        numberTitleSize: 20.0,
-                        width: 92.0,
-                      ),
-                    ],
-                  )
-                ],
-              )
-            ],
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                complaintNumberWidget(
+                    statusTitle: 'Total Complaints',
+                    numberTitle: totalComplaintsInt,
+                    color: Color.fromARGB(1000, 5, 150, 105),
+                    statusTitleSize: 15.0,
+                    numberTitleSize: 20.0),
+                SizedBox(
+                  width: 12,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        complaintNumberWidget(
+                          statusTitle: 'Pending',
+                          numberTitle: pendingComplaintsInt,
+                          color: Colors.amber[500],
+                          statusTitleSize: 15.0,
+                          numberTitleSize: 20.0,
+                          width: 92.0,
+                        ),
+                        SizedBox(
+                          width: 12,
+                        ),
+                        complaintNumberWidget(
+                          statusTitle: 'Approved',
+                          numberTitle: approvedComplaintsInt,
+                          color: Colors.blueAccent,
+                          statusTitleSize: 15.0,
+                          numberTitleSize: 20.0,
+                          width: 92.0,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        complaintNumberWidget(
+                          statusTitle: 'In Progress',
+                          numberTitle: inProgressComplaintsInt,
+                          color: Colors.green,
+                          statusTitleSize: 15.0,
+                          numberTitleSize: 20.0,
+                          width: 92.0,
+                        ),
+                        SizedBox(
+                          width: 12,
+                        ),
+                        complaintNumberWidget(
+                          statusTitle: 'Completed',
+                          numberTitle: completedComplaintsInt,
+                          color: Colors.lightGreen,
+                          statusTitleSize: 15.0,
+                          numberTitleSize: 20.0,
+                          width: 92.0,
+                        ),
+                      ],
+                    )
+                  ],
+                )
+              ],
+            ),
           );
         });
   }
