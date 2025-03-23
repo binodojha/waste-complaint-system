@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
+import 'package:swms/screens/admin/user_manage_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 
 class AdminNavBar extends StatelessWidget {
@@ -15,13 +16,15 @@ class AdminNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       iconSize: 22,
       currentIndex: currentIndex,
-      onTap: (index) {
-        if (index == 0 && currentIndex != 0) {
-          Navigator.pushReplacementNamed(context, AdminScreen.id);
-        } else if (index == 2 && currentIndex != 2) {
-          Navigator.pushReplacementNamed(context, UserHomeScreen.id);
-        }
-      },
+      // onTap: (index) {
+      //   if (index == 0 && currentIndex != 0) {
+      //     Navigator.pushReplacementNamed(context, AdminScreen.id);
+      //   } else if (index == 2 && currentIndex != 2) {
+      //     Navigator.pushReplacementNamed(context, UserManageScreen.id);
+      //   } else if (index == 1 && currentIndex != 1) {
+      //     Navigator.pushReplacementNamed(context, AdminScreen.id);
+      //   }
+      // },
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

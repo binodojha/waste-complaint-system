@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:swms/components/waste_report_form.dart';
 import 'package:swms/components/wrapper.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
-import 'package:swms/screens/admin/user_manage.dart';
+import 'package:swms/screens/admin/user_manage_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
@@ -33,13 +33,14 @@ class MyApp extends StatelessWidget {
               bottomNavigationBarTheme:
                   BottomNavigationBarThemeData(backgroundColor: Colors.white),
               scaffoldBackgroundColor: Colors.blueGrey[50]),
-          initialRoute: AdminScreen.id,
+          initialRoute: UserManageScreen.id,
           routes: {
             LoginScreen.id: (context) => LoginScreen(),
             RegistrationScreen.id: (context) => RegistrationScreen(),
             UserHomeScreen.id: (context) => UserHomeScreen(),
             AdminScreen.id: (context) => AdminScreen(),
             ReportForm.id: (context) => ReportForm(),
+            UserManageScreen.id: (context) => UserManageScreen(),
             Wrapper.id: (context) => Wrapper()
           },
         ),
