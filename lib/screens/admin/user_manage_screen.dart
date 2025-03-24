@@ -13,6 +13,7 @@ class UserManageScreen extends StatefulWidget {
 
 class _UserManageScreenState extends State<UserManageScreen> {
   final _auth = FirebaseAuth.instance;
+  final String? currenUserEmail = FirebaseAuth.instance.currentUser!.email;
   final _firestore = FirebaseFirestore.instance;
   final _addUserFormKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
@@ -30,7 +31,9 @@ class _UserManageScreenState extends State<UserManageScreen> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        bottomNavigationBar: AdminNavBar(),
+        bottomNavigationBar: AdminNavBar(
+          currentIndex: 2,
+        ),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Row(

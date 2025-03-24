@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
@@ -99,15 +98,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           password: passwordController.text,
                         );
                         if (user != null) {
-                          if (loggedInUser == 'binodojha1@gmail.com') {
+                          final currentUser = _auth.currentUser;
+                          if (currentUser != null &&
+                              currentUser.email == 'binodojha1@gmail.com') {
                             Navigator.pushNamed(context, AdminScreen.id);
                           } else {
                             Navigator.pushNamed(context, UserHomeScreen.id);
                           }
                         }
                       } catch (e) {
-                        // exception handling
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text("Login failed: ${e.toString()}")),
+                        );
                       }
+                      emailController.clear();
+                      passwordController.clear();
                     },
                     style: ElevatedButton.styleFrom(
                       textStyle: TextStyle(

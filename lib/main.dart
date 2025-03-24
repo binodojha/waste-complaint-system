@@ -7,6 +7,7 @@ import 'package:swms/screens/admin/user_manage_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
+import 'package:swms/screens/admin/complaint_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,15 +34,16 @@ class MyApp extends StatelessWidget {
               bottomNavigationBarTheme:
                   BottomNavigationBarThemeData(backgroundColor: Colors.white),
               scaffoldBackgroundColor: Colors.blueGrey[50]),
-          initialRoute: UserManageScreen.id,
+          initialRoute: AdminScreen.id,
           routes: {
+            Wrapper.id: (context) => Wrapper(),
             LoginScreen.id: (context) => LoginScreen(),
             RegistrationScreen.id: (context) => RegistrationScreen(),
             UserHomeScreen.id: (context) => UserHomeScreen(),
-            AdminScreen.id: (context) => AdminScreen(),
             ReportForm.id: (context) => ReportForm(),
+            AdminScreen.id: (context) => AdminScreen(),
             UserManageScreen.id: (context) => UserManageScreen(),
-            Wrapper.id: (context) => Wrapper()
+            AdminComplaintScreen.id: (context) => AdminComplaintScreen(),
           },
         ),
       ),
