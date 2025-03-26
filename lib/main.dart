@@ -5,6 +5,8 @@ import 'package:swms/components/wrapper.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
 import 'package:swms/screens/admin/user_manage_screen.dart';
 import 'package:swms/screens/admin/admin_profile_screen.dart';
+import 'package:swms/screens/collector/collector_home_screen.dart';
+import 'package:swms/screens/collector/collector_profile_screen.dart';
 import 'package:swms/screens/user/user_all_reports_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
@@ -52,6 +54,9 @@ class MyApp extends StatelessWidget {
             UserProfileScreen.id: (context) => UserProfileScreen(),
             UserReports.id: (context) => UserReports(),
             ReportForm.id: (context) => ReportForm(),
+            // Collector Screen
+            CollectorHomeScreen.id: (context) => CollectorHomeScreen(),
+            CollectorProfileScreen.id: (context) => CollectorProfileScreen(),
           },
         ),
       ),

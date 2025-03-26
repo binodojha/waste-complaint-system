@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
+import 'package:swms/screens/collector/collector_home_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
 
@@ -102,6 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (currentUser != null &&
                               currentUser.email == 'binodojha1@gmail.com') {
                             Navigator.pushNamed(context, AdminScreen.id);
+                          } else if (currentUser != null &&
+                              currentUser.email == 'jagatjoshi@gmail.com') {
+                            Navigator.pushNamed(
+                                context, CollectorHomeScreen.id);
                           } else {
                             Navigator.pushNamed(context, UserHomeScreen.id);
                           }
