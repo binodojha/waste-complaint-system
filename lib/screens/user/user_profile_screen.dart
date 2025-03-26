@@ -11,7 +11,7 @@ import 'package:swms/utils/image_compress.dart';
 import 'package:swms/utils/firebase_serivce.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  static const String id = 'profile_screen';
+  static const String id = 'user_profile_screen';
   const UserProfileScreen({super.key});
   @override
   State<StatefulWidget> createState() => _UserProfileScreen();

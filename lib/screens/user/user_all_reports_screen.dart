@@ -1,26 +1,27 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:swms/components/waste_report_form.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:swms/components/user_navigation_bar.dart';
 
-class UserHomeScreen extends StatefulWidget {
-  static const String id = 'home_screen';
-  const UserHomeScreen({super.key});
-
+class UserReports extends StatefulWidget {
+  static const String id = "user_all_reports";
+  const UserReports({super.key});
   @override
-  State<UserHomeScreen> createState() => _UserHomeScreenState();
+  State<StatefulWidget> createState() => _AllUserReports();
 }
 
 final _firestore = FirebaseFirestore.instance;
 final loggedInUser = FirebaseAuth.instance.currentUser?.email!;
 
-class _UserHomeScreenState extends State<UserHomeScreen> {
+class _AllUserReports extends State<UserReports> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: UserNavBar(),
+      bottomNavigationBar: UserNavBar(
+        currentIndex: 2,
+      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Row(
@@ -30,91 +31,50 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               'assets/images/logo.png',
               width: 100,
             ),
-            // CircleAvatar(
-            //     // backgroundImage: AssetImage(''),
-            //     ),
           ],
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(),
-        margin: EdgeInsets.only(left: 20, right: 20, top: 30),
-        child: UserHome(),
-      ),
-    );
-  }
-}
-
-// User Main Body
-class UserHome extends StatelessWidget {
-  const UserHome({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Complaints",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 25,
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 10),
-          padding: EdgeInsets.all(10),
-          width: double.infinity,
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.blueGrey[100],
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: AllComplaints(),
-        ),
-        SizedBox(
-          height: 30,
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            iconSize: 22,
-            textStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-            padding: EdgeInsets.all(15),
-            shape:
-                BeveledRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            iconColor: Colors.white,
-            foregroundColor: Colors.white,
-            backgroundColor: Color.fromARGB(1000, 5, 150, 105),
-          ),
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return ReportForm();
-                });
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Container(
+          margin: EdgeInsets.only(top: 30, left: 15, right: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.add,
+              Text(
+                'Completed Reports',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              AllComplaints(
+                status: 'Completed',
               ),
               SizedBox(
-                width: 10,
+                height: 70,
               ),
-              Text("Report a Waste Pickup"),
+              Text(
+                'Rejected Reports',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              AllComplaints(
+                status: 'Rejected',
+              )
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
 
 class AllComplaints extends StatefulWidget {
-  const AllComplaints({super.key});
+  const AllComplaints({super.key, this.status});
+  final String? status;
 
   @override
   State<AllComplaints> createState() => _AllComplaintsState();
@@ -135,17 +95,7 @@ class _AllComplaintsState extends State<AllComplaints> {
           if (snapshot.hasData) {
             final complaints = snapshot.data?.docs;
             for (var complaint in complaints!) {
-              if (complaint['status'] == 'pending') {
-                statusDecoration = BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(4.0),
-                );
-              } else if (complaint['status'] == 'In Progress') {
-                statusDecoration = BoxDecoration(
-                  color: Colors.amber[700],
-                  borderRadius: BorderRadius.circular(4.0),
-                );
-              } else if (complaint['status'] == 'Rejected') {
+              if (complaint['status'] == 'Rejected') {
                 statusDecoration = BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(4.0),
@@ -158,8 +108,7 @@ class _AllComplaintsState extends State<AllComplaints> {
                 );
               }
               if (loggedInUser == complaint['email']) {
-                if (complaint['status'] != 'Completed' &&
-                    complaint['status'] != "Rejected") {
+                if (complaint['status'] == widget.status) {
                   final complaintWidget = Container(
                     margin: EdgeInsets.only(top: 10),
                     padding: EdgeInsets.all(10),
@@ -222,9 +171,10 @@ class _AllComplaintsState extends State<AllComplaints> {
           }
           if (complaintWidgets.isEmpty) {
             return Container(
+              margin: EdgeInsets.only(top: 10),
               child: Center(
                 child: Text(
-                  "No complaints Yet!",
+                  "No ${widget.status} complaints Yet!",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
