@@ -31,4 +31,15 @@ class FirebaseSerivce {
       throw Exception("Error updating complaint status: $e");
     }
   }
+
+  Future<void> updateUserImage(String docId, String userImage) async {
+    try {
+      await _firestore.collection('users').doc(docId).update({
+        'image': userImage,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception("Error updating user image: $e");
+    }
+  }
 }

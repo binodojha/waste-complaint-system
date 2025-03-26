@@ -20,7 +20,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavBar(),
+      bottomNavigationBar: UserNavBar(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Row(

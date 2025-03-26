@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
 import 'package:swms/screens/admin/complaint_screen.dart';
 import 'package:swms/screens/admin/user_manage_screen.dart';
+import 'package:swms/screens/admin/admin_profile_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 
 class AdminNavBar extends StatelessWidget {
@@ -24,7 +25,9 @@ class AdminNavBar extends StatelessWidget {
           Navigator.pushReplacementNamed(context, AdminComplaintScreen.id);
         } else if (index == 2 && currentIndex != 2) {
           Navigator.pushReplacementNamed(context, UserManageScreen.id);
-        } else {}
+        } else if (index == 3 && currentIndex != 3) {
+          Navigator.pushReplacementNamed(context, AdminProfileScreen.id);
+        }
       },
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(

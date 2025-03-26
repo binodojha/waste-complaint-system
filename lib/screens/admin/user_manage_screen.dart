@@ -13,8 +13,9 @@ class UserManageScreen extends StatefulWidget {
 
 class _UserManageScreenState extends State<UserManageScreen> {
   final _auth = FirebaseAuth.instance;
-  final String? currenUserEmail = FirebaseAuth.instance.currentUser!.email;
   final _firestore = FirebaseFirestore.instance;
+  final String? currentUserEmail = FirebaseAuth.instance.currentUser!.email;
+  String? currentUserpassword;
   final _addUserFormKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -24,6 +25,40 @@ class _UserManageScreenState extends State<UserManageScreen> {
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
+  String fullName = "Loading...";
+  String email = "Loading...";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  void fetchUserData() async {
+    if (currentUserEmail == null) return;
+
+    try {
+      QuerySnapshot userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: currentUserEmail)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isNotEmpty) {
+        var userDoc = userQuery.docs.first;
+
+        fullName = userDoc['name'] ?? "No Name Available";
+        email = userDoc['email'] ?? "No Email Available";
+        currentUserpassword = userDoc['password'];
+      }
+    } catch (e) {
+      setState(() {
+        fullName = "Error fetching data";
+        email = "Error fetching data";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -93,6 +128,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                       TextFormField(
                         focusNode: _emailFocusNode,
                         controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter email';
@@ -156,8 +192,10 @@ class _UserManageScreenState extends State<UserManageScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (_addUserFormKey.currentState!.validate()) {
+                              User? adminUser =
+                                  _auth.currentUser; // Store admin user details
                               try {
-                                final newUser =
+                                UserCredential newUser =
                                     await _auth.createUserWithEmailAndPassword(
                                         email: emailController.text,
                                         password: passwordController.text);
@@ -167,9 +205,19 @@ class _UserManageScreenState extends State<UserManageScreen> {
                                     'email': emailController.text,
                                     'password': passwordController.text,
                                     'role': roleController.dropDownValue!.value,
+                                    'image': null,
                                     'timestamp': FieldValue.serverTimestamp()
                                   },
                                 );
+                                // Sign out new user
+                                await _auth.signOut();
+                                // Sign back in as admin
+                                if (adminUser != null) {
+                                  await _auth.signInWithEmailAndPassword(
+                                    email: adminUser.email!,
+                                    password: currentUserpassword!,
+                                  );
+                                }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text("User Added successfully"),

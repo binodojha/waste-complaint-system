@@ -45,4 +45,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/gradle.properties
+
+
+# Firebase configuration files (contains API keys)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+.env
+
+# Secure storage (if using shared preferences or encrypted storage)
+**/shared_prefs/
+**/keystore/
+
+# Firebase Crashlytics reports
+**/crashlytics/
 

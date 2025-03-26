@@ -4,10 +4,12 @@ import 'package:swms/components/waste_report_form.dart';
 import 'package:swms/components/wrapper.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
 import 'package:swms/screens/admin/user_manage_screen.dart';
+import 'package:swms/screens/admin/admin_profile_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
 import 'package:swms/screens/admin/complaint_screen.dart';
+import 'package:swms/screens/user/user_profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,16 +36,18 @@ class MyApp extends StatelessWidget {
               bottomNavigationBarTheme:
                   BottomNavigationBarThemeData(backgroundColor: Colors.white),
               scaffoldBackgroundColor: Colors.blueGrey[50]),
-          initialRoute: AdminScreen.id,
+          initialRoute: LoginScreen.id,
           routes: {
             Wrapper.id: (context) => Wrapper(),
             LoginScreen.id: (context) => LoginScreen(),
             RegistrationScreen.id: (context) => RegistrationScreen(),
-            UserHomeScreen.id: (context) => UserHomeScreen(),
-            ReportForm.id: (context) => ReportForm(),
             AdminScreen.id: (context) => AdminScreen(),
+            AdminProfileScreen.id: (context) => AdminProfileScreen(),
             UserManageScreen.id: (context) => UserManageScreen(),
             AdminComplaintScreen.id: (context) => AdminComplaintScreen(),
+            UserHomeScreen.id: (context) => UserHomeScreen(),
+            UserProfileScreen.id: (context) => UserProfileScreen(),
+            ReportForm.id: (context) => ReportForm(),
           },
         ),
       ),
