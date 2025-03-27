@@ -1,17 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:swms/components/admin_complaint_card.dart';
-import 'package:swms/components/admin_navigation_bar.dart';
+import 'package:swms/components/collector_complaint_card.dart';
+import 'package:swms/components/collector_navigation_bar.dart';
 import 'package:swms/utils/firebase_serivce.dart';
 
-class AdminComplaintScreen extends StatefulWidget {
-  static String id = 'complaint_screen';
-  const AdminComplaintScreen({super.key});
-
+class CollectorComplaintScreen extends StatefulWidget {
+  static const String id = 'collector_complaints_screen';
+  const CollectorComplaintScreen({super.key});
   @override
-  State<StatefulWidget> createState() => _ComplaintScreenState();
+  State<StatefulWidget> createState() => _CollectorComplaintScreen();
 }
 
-class _ComplaintScreenState extends State<AdminComplaintScreen> {
+final FirebaseSerivce _firebaseService = FirebaseSerivce();
+final String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+
+class _CollectorComplaintScreen extends State<CollectorComplaintScreen> {
   int? expandedIndex;
   void toggleExpansion(int index) {
     setState(() {
@@ -23,11 +26,10 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
     });
   }
 
-  final FirebaseSerivce _firebaseService = FirebaseSerivce();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: AdminNavBar(
+      bottomNavigationBar: CollectorNavBar(
         currentIndex: 1,
       ),
       appBar: AppBar(
@@ -39,26 +41,23 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
               'assets/images/logo.png',
               width: 100,
             ),
-            // CircleAvatar(
-            //     // backgroundImage: AssetImage(''),
-            //     ),
           ],
         ),
       ),
       body: Container(
-        margin: EdgeInsets.only(left: 20, right: 20, top: 30),
+        margin: EdgeInsets.only(top: 20, left: 15, right: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Completed",
+              "Completed Complaints",
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 20,
             ),
             Expanded(
               child: StreamBuilder(
@@ -71,8 +70,10 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
                   return ListView.builder(
                     itemCount: complaints.length,
                     itemBuilder: (context, index) {
-                      return complaints[index]['status'] == "Completed"
-                          ? ExpandableComplaintCard(
+                      return complaints[index]['status'] == "Completed" &&
+                              complaints[index]['collectorEmail'] ==
+                                  currentUserEmail
+                          ? CollectorExpandableComplaintCard(
                               id: complaints[index]['id'],
                               title: complaints[index]['title'],
                               description: complaints[index]['description'],
@@ -81,8 +82,8 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
                               image: complaints[index]['image'],
                               onTap: () => toggleExpansion(index),
                               isExpanded: expandedIndex == index,
-                              status1: "Pending",
-                              status2: "Approved",
+                              status1: "",
+                              status2: "Completed",
                             )
                           : Container();
                     },

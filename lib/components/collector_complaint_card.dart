@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:swms/utils/firebase_serivce.dart';
 
 final FirebaseSerivce _firebaseService = FirebaseSerivce();
+final String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
 
-class ExpandableComplaintCard extends StatefulWidget {
+class CollectorExpandableComplaintCard extends StatefulWidget {
   final String title;
   final String description;
   final String location;
@@ -15,7 +17,7 @@ class ExpandableComplaintCard extends StatefulWidget {
   final String status1, status2;
   final id;
 
-  const ExpandableComplaintCard(
+  const CollectorExpandableComplaintCard(
       {super.key,
       required this.title,
       required this.description,
@@ -29,18 +31,19 @@ class ExpandableComplaintCard extends StatefulWidget {
       required this.status2});
 
   @override
-  State<ExpandableComplaintCard> createState() =>
+  State<CollectorExpandableComplaintCard> createState() =>
       _ExpandableComplaintCardState();
 }
 
-class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
+class _ExpandableComplaintCardState
+    extends State<CollectorExpandableComplaintCard> {
   //Track the new status
   String? updatedStatus;
   void updatStatus(BuildContext context, String docId, String newStatus,
-      String? collectorEmail) async {
+      collectorEmail) async {
     try {
       await _firebaseService.updateComplaintStatus(
-          docId, newStatus, collectorEmail!);
+          docId, newStatus, collectorEmail);
       setState(() {
         updatedStatus = newStatus;
       });
@@ -64,11 +67,11 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
         duration: Duration(milliseconds: 400),
         curve: Curves.easeInOut,
         margin:
-            widget.status != widget.status1 || widget.status != widget.status2
+            widget.status == widget.status1 || widget.status == widget.status2
                 ? EdgeInsets.only(bottom: 15)
                 : EdgeInsets.all(0),
         padding:
-            widget.status != widget.status1 || widget.status != widget.status2
+            widget.status == widget.status1 || widget.status == widget.status2
                 ? EdgeInsets.only(left: 10, right: 20, bottom: 5, top: 5)
                 : EdgeInsets.all(0),
         decoration: BoxDecoration(
@@ -81,8 +84,8 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.status != widget.status1 ||
-                widget.status != widget.status2)
+            if (widget.status == widget.status1 ||
+                widget.status == widget.status2)
               Text(
                 widget.title,
                 style: TextStyle(
@@ -90,8 +93,8 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            if (widget.status != widget.status1 ||
-                widget.status != widget.status2)
+            if (widget.status == widget.status1 ||
+                widget.status == widget.status2)
               if (widget.isExpanded) ...[
                 SizedBox(
                   height: 10,
@@ -130,27 +133,40 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                   ],
                 ),
                 if (updatedStatus == null)
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      displayStatus == 'Pending'
-                          ? actionButton(
-                              title: 'Accept',
-                              icon: Icons.check,
-                              onClicked: () => updatStatus(
-                                  context, widget.id, 'Approved', null),
-                            )
-                          : Container(),
-                      SizedBox(
-                        width: 20,
+                      Row(
+                        children: [
+                          displayStatus == 'Approved'
+                              ? actionButton(
+                                  title: 'Accept',
+                                  icon: Icons.check,
+                                  onClicked: () => updatStatus(
+                                      context,
+                                      widget.id,
+                                      'In Progress',
+                                      currentUserEmail),
+                                )
+                              : Container(),
+                        ],
                       ),
-                      displayStatus == 'Pending'
-                          ? actionButton(
-                              title: 'Reject',
-                              icon: Icons.close,
-                              onClicked: () => updatStatus(
-                                  context, widget.id, 'Rejected', null),
-                            )
-                          : Container(),
+                      if (displayStatus == 'In Progress')
+                        Row(
+                          children: [
+                            displayStatus == 'In Progress'
+                                ? actionButton(
+                                    title: 'Completed',
+                                    icon: Icons.check,
+                                    onClicked: () => updatStatus(
+                                        context,
+                                        widget.id,
+                                        'Completed',
+                                        currentUserEmail),
+                                  )
+                                : Container(),
+                          ],
+                        ),
                     ],
                   )
               ],
@@ -169,8 +185,11 @@ Widget actionButton({
   return ElevatedButton(
     onPressed: onClicked,
     style: ElevatedButton.styleFrom(
-      backgroundColor:
-          title == "Accept" ? Color.fromARGB(1000, 5, 150, 105) : Colors.red,
+      backgroundColor: title == "Accept"
+          ? Color.fromARGB(1000, 5, 150, 105)
+          : title == "Completed"
+              ? const Color.fromARGB(255, 39, 116, 41)
+              : Colors.red,
       shape: LinearBorder(),
     ),
     child: Row(

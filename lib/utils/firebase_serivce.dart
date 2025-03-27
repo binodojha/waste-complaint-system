@@ -14,6 +14,7 @@ class FirebaseSerivce {
           'email': doc['email'],
           'image': doc['image'],
           'timestamp': doc['timestamp'],
+          'collectorEmail': doc['collectorEmail'],
           'status': doc['status'],
         };
       }).toList();
@@ -21,10 +22,12 @@ class FirebaseSerivce {
   }
 
   // Update status field in complaints document
-  Future<void> updateComplaintStatus(String docId, String newStatus) async {
+  Future<void> updateComplaintStatus(
+      String docId, String newStatus, collectorEmail) async {
     try {
       await _firestore.collection('complaints').doc(docId).update({
         'status': newStatus,
+        'collectorEmail': collectorEmail,
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {

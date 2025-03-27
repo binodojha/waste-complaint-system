@@ -38,7 +38,7 @@ class UserNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.report),
-          label: "Report",
+          label: "Reports",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_4_sharp),

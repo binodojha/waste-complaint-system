@@ -23,7 +23,7 @@ class _ReportFormState extends State<ReportForm> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   final _reportFormKey = GlobalKey<FormState>();
-  String status = 'pending';
+  String status = 'Pending';
   String? loggedInUser;
   File? newImage;
   String? base64ImageString;
@@ -228,6 +228,7 @@ class _ReportFormState extends State<ReportForm> {
                           'location': locationController.text,
                           'status': status,
                           'email': loggedInUser,
+                          'collectorEmail': "",
                           'image': base64ImageString,
                           'timestamp': FieldValue.serverTimestamp()
                         },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swms/components/admin_complaint_card.dart';
+import 'package:swms/components/collector_complaint_card.dart';
 import 'package:swms/components/collector_navigation_bar.dart';
 import 'package:swms/utils/firebase_serivce.dart';
 
@@ -43,38 +43,53 @@ class _CollectorHomeScreen extends State<CollectorHomeScreen> {
         ),
       ),
       body: Container(
-        child: Expanded(
-          child: StreamBuilder(
-            stream: _firebaseService.getComplaints(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-              var complaints = snapshot.data!;
-              return ListView.builder(
-                itemCount: complaints.length,
-                itemBuilder: (context, index) {
-                  return complaints[index]['status'] != "Completed" &&
-                          complaints[index]['status'] != "Rejected"
-                      ? ExpandableComplaintCard(
-                          id: complaints[index]['id'],
-                          title: complaints[index]['title'],
-                          description: complaints[index]['description'],
-                          location: complaints[index]['location'],
-                          status: complaints[index]['status'],
-                          image: complaints[index]['image'],
-                          onTap: () => toggleExpansion(index),
-                          isExpanded: expandedIndex == index,
-                          status1: "Rejected",
-                          status2: "Completed",
-                        )
-                      : Container();
-                },
-              );
-            },
-          ),
-        ),
-      ),
+          margin: EdgeInsets.only(top: 20, left: 15, right: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Complaints',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Expanded(
+                child: StreamBuilder(
+                  stream: _firebaseService.getComplaints(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    var complaints = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: complaints.length,
+                      itemBuilder: (context, index) {
+                        return complaints[index]['status'] != "Completed" &&
+                                complaints[index]['status'] != "Rejected"
+                            ? CollectorExpandableComplaintCard(
+                                id: complaints[index]['id'],
+                                title: complaints[index]['title'],
+                                description: complaints[index]['description'],
+                                location: complaints[index]['location'],
+                                status: complaints[index]['status'],
+                                image: complaints[index]['image'],
+                                onTap: () => toggleExpansion(index),
+                                isExpanded: expandedIndex == index,
+                                status1: "Approved",
+                                status2: "In Progress",
+                              )
+                            : Container();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

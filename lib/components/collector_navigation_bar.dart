@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swms/screens/collector/collector_home_screen.dart';
 import 'package:swms/screens/collector/collector_profile_screen.dart';
+import 'package:swms/screens/collector/colletor_complaints_screen.dart';
 
 class CollectorNavBar extends StatelessWidget {
   final int currentIndex;
@@ -18,8 +19,8 @@ class CollectorNavBar extends StatelessWidget {
       onTap: (index) {
         if (index == 0 && currentIndex != 0) {
           Navigator.pushReplacementNamed(context, CollectorHomeScreen.id);
-          // } else if (index == 1 && currentIndex != 1) {
-          //   Navigator.pushReplacementNamed(context, AdminComplaintScreen.id);
+        } else if (index == 1 && currentIndex != 1) {
+          Navigator.pushReplacementNamed(context, CollectorComplaintScreen.id);
         } else if (index == 2 && currentIndex != 2) {
           Navigator.pushReplacementNamed(context, CollectorProfileScreen.id);
         }
@@ -30,8 +31,8 @@ class CollectorNavBar extends StatelessWidget {
           label: "Home",
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.report),
-          label: "Report",
+          icon: Icon(Icons.history_outlined),
+          label: "History",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_4_sharp),
