@@ -19,11 +19,9 @@ class UserNavBar extends StatelessWidget {
       onTap: (index) {
         if (index == 0 && currentIndex != 0) {
           Navigator.pushReplacementNamed(context, UserHomeScreen.id);
-          // } else if (index == 1 && currentIndex != 1) {
-          //   Navigator.pushReplacementNamed(context, AdminComplaintScreen.id);
-        } else if (index == 2 && currentIndex != 2) {
+        } else if (index == 1 && currentIndex != 1) {
           Navigator.pushReplacementNamed(context, UserReports.id);
-        } else if (index == 3 && currentIndex != 3) {
+        } else if (index == 2 && currentIndex != 2) {
           Navigator.pushReplacementNamed(context, UserProfileScreen.id);
         }
       },
@@ -31,10 +29,6 @@ class UserNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: "Home",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: "Alerts",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.report),

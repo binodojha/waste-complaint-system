@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
-import 'package:swms/screens/admin/complaint_screen.dart';
+import 'package:swms/screens/admin/admin_complaint_screen.dart';
 import 'package:swms/screens/admin/user_manage_screen.dart';
 import 'package:swms/screens/admin/admin_profile_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';

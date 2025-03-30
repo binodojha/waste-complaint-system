@@ -27,7 +27,11 @@ class _UserManageScreenState extends State<UserManageScreen> {
   final FocusNode _passwordFocusNode = FocusNode();
   String fullName = "Loading...";
   String email = "Loading...";
-
+  bool _obscureText = true;
+  Icon icon = Icon(
+    color: Color.fromARGB(1000, 5, 150, 105),
+    Icons.remove_red_eye,
+  );
   @override
   void initState() {
     super.initState();
@@ -131,7 +135,12 @@ class _UserManageScreenState extends State<UserManageScreen> {
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter email';
+                            return "Email is required";
+                          }
+                          final emailRegex = RegExp(
+                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                          if (!emailRegex.hasMatch(value)) {
+                            return "Enter a valid email";
                           }
                           return null;
                         },
@@ -148,20 +157,49 @@ class _UserManageScreenState extends State<UserManageScreen> {
                       TextFormField(
                         focusNode: _passwordFocusNode,
                         controller: passwordController,
-                        validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value.length < 8) {
-                            return 'Please enter password with at least 8 characters';
-                          }
-                          return null;
-                        },
+                        obscureText: _obscureText,
                         decoration: InputDecoration(
                           hintText: "Enter Password",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          suffixIcon: InkWell(
+                              onTap: () {
+                                _obscureText = !_obscureText;
+                                icon = _obscureText
+                                    ? const Icon(
+                                        Icons.visibility,
+                                        color:
+                                            Color.fromARGB(1000, 5, 150, 105),
+                                      )
+                                    : const Icon(
+                                        Icons.visibility_off,
+                                      );
+                                setState(() {});
+                              },
+                              child: icon),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Password is required";
+                          }
+                          if (value.length < 8) {
+                            return "Password must be at least 8 characters";
+                          }
+                          if (!RegExp(r'^(?=.*[A-Z])').hasMatch(value)) {
+                            return "Include at least one uppercase letter";
+                          }
+                          if (!RegExp(r'^(?=.*[a-z])').hasMatch(value)) {
+                            return "Include at least one lowercase letter";
+                          }
+                          if (!RegExp(r'^(?=.*\d)').hasMatch(value)) {
+                            return "Include at least one number";
+                          }
+                          if (!RegExp(r'^(?=.*[@$!%*?&])').hasMatch(value)) {
+                            return "Include at least one special character (@\$!%*?&)";
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(
                         height: 10,
@@ -223,6 +261,16 @@ class _UserManageScreenState extends State<UserManageScreen> {
                                     content: Text("User Added successfully"),
                                   ),
                                 );
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'email-already-in-use') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      duration: Duration(seconds: 3),
+                                      content: Text(
+                                          "This email is already in use! Please LogIn"),
+                                    ),
+                                  );
+                                }
                               } catch (e) {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(SnackBar(

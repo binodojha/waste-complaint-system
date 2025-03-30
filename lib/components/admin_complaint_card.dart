@@ -40,7 +40,7 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
       String? collectorEmail) async {
     try {
       await _firebaseService.updateComplaintStatus(
-          docId, newStatus, collectorEmail!);
+          docId, newStatus, collectorEmail ?? '');
       setState(() {
         updatedStatus = newStatus;
       });
@@ -137,7 +137,7 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                               title: 'Accept',
                               icon: Icons.check,
                               onClicked: () => updatStatus(
-                                  context, widget.id, 'Approved', null),
+                                  context, widget.id, 'Approved', ''),
                             )
                           : Container(),
                       SizedBox(
@@ -148,7 +148,7 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                               title: 'Reject',
                               icon: Icons.close,
                               onClicked: () => updatStatus(
-                                  context, widget.id, 'Rejected', null),
+                                  context, widget.id, 'Rejected', ''),
                             )
                           : Container(),
                     ],

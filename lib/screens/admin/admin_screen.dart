@@ -90,6 +90,20 @@ class _AdminScreenState extends State<AdminScreen> {
                     return Center(child: CircularProgressIndicator());
                   }
                   var complaints = snapshot.data!;
+                  final completedComplaints = complaints
+                      .where((c) =>
+                          c['status'] != 'Completed' &&
+                          c['status'] != 'Rejected')
+                      .toList();
+                  if (completedComplaints.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "No complaints available",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    );
+                  }
                   return ListView.builder(
                     itemCount: complaints.length,
                     itemBuilder: (context, index) {

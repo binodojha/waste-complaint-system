@@ -92,7 +92,7 @@ class _UserProfileScreen extends State<UserProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: UserNavBar(
-        currentIndex: 3,
+        currentIndex: 2,
       ),
       appBar: AppBar(
         automaticallyImplyLeading: false,

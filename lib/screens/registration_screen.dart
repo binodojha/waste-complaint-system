@@ -25,7 +25,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController confirmpasswordController =
       TextEditingController();
-  bool _obscureText = true;
+  bool _obscureText1 = true;
+  bool _obscureText2 = true;
+  Icon icon1 = Icon(
+    color: Color.fromARGB(1000, 5, 150, 105),
+    Icons.remove_red_eye,
+  );
+  Icon icon2 = Icon(
+    color: Color.fromARGB(1000, 5, 150, 105),
+    Icons.remove_red_eye,
+  );
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -123,7 +132,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           focusNode: _passwordFocusNode,
                           controller: passwordController,
                           keyboardType: TextInputType.visiblePassword,
-                          obscureText: true,
+                          obscureText: _obscureText1,
                           decoration: InputDecoration(
                             labelText: "Password",
                             prefixIcon: Icon(
@@ -131,20 +140,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Color.fromARGB(1000, 5, 150, 105),
                             ),
                             suffixIcon: InkWell(
-                              onTap: () {
-                                if (_obscureText) {
-                                  _obscureText = false;
+                                onTap: () {
+                                  _obscureText1 = !_obscureText1;
+                                  icon1 = _obscureText1
+                                      ? const Icon(
+                                          Icons.visibility,
+                                          color:
+                                              Color.fromARGB(1000, 5, 150, 105),
+                                        )
+                                      : const Icon(
+                                          Icons.visibility_off,
+                                        );
                                   setState(() {});
-                                } else {
-                                  _obscureText = true;
-                                  setState(() {});
-                                }
-                              },
-                              child: Icon(
-                                color: Color.fromARGB(1000, 5, 150, 105),
-                                Icons.remove_red_eye,
-                              ),
-                            ),
+                                },
+                                child: icon1),
                             hintText: "Enter your Password here",
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
@@ -180,7 +189,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           focusNode: _confirmpasswordFocusNode,
                           controller: confirmpasswordController,
                           keyboardType: TextInputType.visiblePassword,
-                          obscureText: true,
+                          obscureText: _obscureText2,
                           decoration: InputDecoration(
                             labelText: "Confirm Password",
                             prefixIcon: Icon(
@@ -188,20 +197,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Color.fromARGB(1000, 5, 150, 105),
                             ),
                             suffixIcon: InkWell(
-                              onTap: () {
-                                if (_obscureText) {
-                                  _obscureText = false;
+                                onTap: () {
+                                  _obscureText2 = !_obscureText2;
+                                  icon2 = _obscureText2
+                                      ? const Icon(
+                                          Icons.visibility,
+                                          color:
+                                              Color.fromARGB(1000, 5, 150, 105),
+                                        )
+                                      : const Icon(
+                                          Icons.visibility_off,
+                                        );
                                   setState(() {});
-                                } else {
-                                  _obscureText = true;
-                                  setState(() {});
-                                }
-                              },
-                              child: Icon(
-                                color: Color.fromARGB(1000, 5, 150, 105),
-                                Icons.remove_red_eye,
-                              ),
-                            ),
+                                },
+                                child: icon2),
                             hintText: "Enter your Password here",
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
@@ -244,6 +253,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   if (newUser.user != null) {
                                     Navigator.pushNamed(
                                         context, UserHomeScreen.id);
+                                  }
+                                } on FirebaseAuthException catch (e) {
+                                  if (e.code == 'email-already-in-use') {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "This email is already in use! Please LogIn")),
+                                    );
                                   }
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(

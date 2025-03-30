@@ -12,7 +12,7 @@ import 'package:swms/screens/user/user_all_reports_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
 import 'package:swms/screens/registration_screen.dart';
-import 'package:swms/screens/admin/complaint_screen.dart';
+import 'package:swms/screens/admin/admin_complaint_screen.dart';
 import 'package:swms/screens/user/user_profile_screen.dart';
 
 void main() async {
@@ -36,10 +36,11 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-              appBarTheme: AppBarTheme(backgroundColor: Colors.white),
-              bottomNavigationBarTheme:
-                  BottomNavigationBarThemeData(backgroundColor: Colors.white),
-              scaffoldBackgroundColor: Colors.blueGrey[50]),
+            appBarTheme: AppBarTheme(backgroundColor: Colors.white),
+            bottomNavigationBarTheme:
+                BottomNavigationBarThemeData(backgroundColor: Colors.white),
+            scaffoldBackgroundColor: Colors.blueGrey[50],
+          ),
           initialRoute: LoginScreen.id,
           routes: {
             Wrapper.id: (context) => Wrapper(),

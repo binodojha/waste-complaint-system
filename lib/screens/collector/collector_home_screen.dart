@@ -65,11 +65,29 @@ class _CollectorHomeScreen extends State<CollectorHomeScreen> {
                       return Center(child: CircularProgressIndicator());
                     }
                     var complaints = snapshot.data!;
+                    final completedComplaints = complaints
+                        .where((c) =>
+                            c['status'] != 'Completed' &&
+                            c['status'] != 'Rejected' &&
+                            c['status'] != 'Pending' &&
+                            c['collectorEmail'] == currentUserEmail)
+                        .toList();
+                    if (completedComplaints.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "No complaints available",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    }
                     return ListView.builder(
                       itemCount: complaints.length,
                       itemBuilder: (context, index) {
                         return complaints[index]['status'] != "Completed" &&
-                                complaints[index]['status'] != "Rejected"
+                                complaints[index]['status'] != "Rejected" &&
+                                complaints[index]['collectorEmail'] ==
+                                    currentUserEmail
                             ? CollectorExpandableComplaintCard(
                                 id: complaints[index]['id'],
                                 title: complaints[index]['title'],
@@ -77,6 +95,8 @@ class _CollectorHomeScreen extends State<CollectorHomeScreen> {
                                 location: complaints[index]['location'],
                                 status: complaints[index]['status'],
                                 image: complaints[index]['image'],
+                                collectorEmail: complaints[index]
+                                    ['collectorEmail'],
                                 onTap: () => toggleExpansion(index),
                                 isExpanded: expandedIndex == index,
                                 status1: "Approved",

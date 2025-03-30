@@ -16,6 +16,7 @@ class CollectorExpandableComplaintCard extends StatefulWidget {
   final VoidCallback onTap;
   final String status1, status2;
   final id;
+  final String collectorEmail;
 
   const CollectorExpandableComplaintCard(
       {super.key,
@@ -28,6 +29,7 @@ class CollectorExpandableComplaintCard extends StatefulWidget {
       required this.isExpanded,
       required this.id,
       required this.status1,
+      required this.collectorEmail,
       required this.status2});
 
   @override
@@ -154,7 +156,8 @@ class _ExpandableComplaintCardState
                       if (displayStatus == 'In Progress')
                         Row(
                           children: [
-                            displayStatus == 'In Progress'
+                            displayStatus == 'In Progress' &&
+                                    widget.collectorEmail == currentUserEmail
                                 ? actionButton(
                                     title: 'Completed',
                                     icon: Icons.check,

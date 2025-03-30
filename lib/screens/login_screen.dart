@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:swms/screens/admin/admin_screen.dart';
@@ -15,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _loginFormKey = GlobalKey<FormState>();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
@@ -78,6 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please enter email";
+                            }
+                            final emailRegex = RegExp(
+                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                            if (!emailRegex.hasMatch(value)) {
+                              return "Enter a valid email";
+                            }
+                          },
                         ),
                         SizedBox(
                           height: 15,
@@ -114,6 +126,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             filled: true,
                             fillColor: Colors.grey[200],
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please enter password";
+                            }
+                          },
                         ),
                         SizedBox(
                           height: 20,
@@ -122,35 +139,50 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () async {
-                              try {
-                                final user =
-                                    await _auth.signInWithEmailAndPassword(
-                                  email: emailController.text,
-                                  password: passwordController.text,
-                                );
-                                if (user != null) {
-                                  final currentUser = _auth.currentUser;
-                                  if (currentUser != null &&
-                                      currentUser.email ==
-                                          'binodojha1@gmail.com') {
-                                    Navigator.pushNamed(
-                                        context, AdminScreen.id);
-                                  } else if (currentUser != null &&
-                                      currentUser.email ==
-                                          'jagatjoshi@gmail.com') {
-                                    Navigator.pushNamed(
-                                        context, CollectorHomeScreen.id);
-                                  } else {
-                                    Navigator.pushNamed(
-                                        context, UserHomeScreen.id);
+                              if (_loginFormKey.currentState!.validate()) {
+                                try {
+                                  final user =
+                                      await _auth.signInWithEmailAndPassword(
+                                    email: emailController.text.trim(),
+                                    password: passwordController.text.trim(),
+                                  );
+                                  if (user != null) {
+                                    final currentUser = _auth.currentUser;
+                                    if (currentUser != null) {
+                                      // Query Firestore to get user document by email
+                                      final querySnapshot = await _firestore
+                                          .collection('users')
+                                          .where('email',
+                                              isEqualTo: currentUser.email)
+                                          .limit(1) // Get only one result
+                                          .get();
+
+                                      if (querySnapshot.docs.isNotEmpty) {
+                                        final userData =
+                                            querySnapshot.docs.first.data();
+                                        final role = userData['role'];
+
+                                        if (role == 'Admin') {
+                                          Navigator.pushNamed(
+                                              context, AdminScreen.id);
+                                        } else if (role == 'Collector') {
+                                          Navigator.pushNamed(
+                                              context, CollectorHomeScreen.id);
+                                        } else {
+                                          Navigator.pushNamed(
+                                              context, UserHomeScreen.id);
+                                        }
+                                      }
+                                    }
                                   }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Incorrect Email/Password"),
+                                      duration: Duration(seconds: 3),
+                                    ),
+                                  );
                                 }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          "Login failed: ${e.toString()}")),
-                                );
                               }
                               emailController.clear();
                               passwordController.clear();
