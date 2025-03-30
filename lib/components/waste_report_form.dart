@@ -233,6 +233,8 @@ class _ReportFormState extends State<ReportForm> {
                           'timestamp': FieldValue.serverTimestamp()
                         },
                       );
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //     SnackBar(content: Text("Report Submitted")));
                     } catch (e) {
                       print("Firestore Error: $e");
                     }

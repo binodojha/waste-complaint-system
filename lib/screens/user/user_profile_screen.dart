@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:swms/components/user_navigation_bar.dart';
+import 'package:swms/screens/login_screen.dart';
 import 'package:swms/utils/image_compress.dart';
 import 'package:swms/utils/firebase_serivce.dart';
 
@@ -245,7 +246,7 @@ class _UserProfileScreen extends State<UserProfileScreen> {
             width: double.maxFinite,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, LoginScreen.id);
               },
               style: ElevatedButton.styleFrom(
                 textStyle: TextStyle(

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swms/components/collector_navigation_bar.dart';
+import 'package:swms/screens/login_screen.dart';
 import 'package:swms/utils/image_compress.dart';
 import 'package:swms/utils/firebase_serivce.dart';
 
@@ -241,7 +242,7 @@ class _CollectorProfileScreen extends State<CollectorProfileScreen> {
             width: double.maxFinite,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, LoginScreen.id);
               },
               style: ElevatedButton.styleFrom(
                 textStyle: TextStyle(

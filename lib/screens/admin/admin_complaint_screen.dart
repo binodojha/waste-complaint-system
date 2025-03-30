@@ -69,7 +69,7 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
                   }
                   var complaints = snapshot.data!;
                   final completedComplaints = complaints
-                      .where((c) => c['status'] != 'Completed')
+                      .where((c) => c['status'] == 'Completed')
                       .toList();
 
                   // If there are no complaints with "Completed" status, show message

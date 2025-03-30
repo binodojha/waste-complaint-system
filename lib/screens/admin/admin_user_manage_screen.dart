@@ -32,6 +32,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
     color: Color.fromARGB(1000, 5, 150, 105),
     Icons.remove_red_eye,
   );
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -228,66 +229,82 @@ class _UserManageScreenState extends State<UserManageScreen> {
                       SizedBox(
                         width: double.maxFinite,
                         child: ElevatedButton(
-                          onPressed: () async {
-                            if (_addUserFormKey.currentState!.validate()) {
-                              User? adminUser =
-                                  _auth.currentUser; // Store admin user details
-                              try {
-                                UserCredential newUser =
-                                    await _auth.createUserWithEmailAndPassword(
-                                        email: emailController.text,
-                                        password: passwordController.text);
-                                _firestore.collection('users').add(
-                                  {
-                                    'name': nameController.text,
-                                    'email': emailController.text,
-                                    'password': passwordController.text,
-                                    'role': roleController.dropDownValue!.value,
-                                    'image': null,
-                                    'timestamp': FieldValue.serverTimestamp()
-                                  },
-                                );
-                                // Sign out new user
-                                await _auth.signOut();
-                                // Sign back in as admin
-                                if (adminUser != null) {
-                                  await _auth.signInWithEmailAndPassword(
-                                    email: adminUser.email!,
-                                    password: currentUserpassword!,
-                                  );
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("User Added successfully"),
-                                  ),
-                                );
-                              } on FirebaseAuthException catch (e) {
-                                if (e.code == 'email-already-in-use') {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      duration: Duration(seconds: 3),
-                                      content: Text(
-                                          "This email is already in use! Please LogIn"),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                    "Error while adding User",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ));
-                              }
-                              nameController.clear();
-                              emailController.clear();
-                              passwordController.clear();
-                              roleController.clearDropDown();
-                            }
-                          },
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  if (_addUserFormKey.currentState!
+                                      .validate()) {
+                                    User? adminUser = _auth
+                                        .currentUser; // Store admin user details
+                                    setState(() {
+                                      _isLoading = true;
+                                    });
+                                    try {
+                                      UserCredential newUser = await _auth
+                                          .createUserWithEmailAndPassword(
+                                              email: emailController.text,
+                                              password:
+                                                  passwordController.text);
+                                      _firestore.collection('users').add(
+                                        {
+                                          'name': nameController.text,
+                                          'email': emailController.text,
+                                          'password': passwordController.text,
+                                          'role': roleController
+                                              .dropDownValue!.value,
+                                          'image': null,
+                                          'timestamp':
+                                              FieldValue.serverTimestamp()
+                                        },
+                                      );
+                                      // Sign out new user
+                                      await _auth.signOut();
+                                      // Sign back in as admin
+                                      if (adminUser != null) {
+                                        await _auth.signInWithEmailAndPassword(
+                                          email: adminUser.email!,
+                                          password: currentUserpassword!,
+                                        );
+                                      }
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content:
+                                              Text("User Added successfully"),
+                                        ),
+                                      );
+                                    } on FirebaseAuthException catch (e) {
+                                      if (e.code == 'email-already-in-use') {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            duration: Duration(seconds: 3),
+                                            content: Text(
+                                                "This email is already in use! Please LogIn"),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                          "Error while adding User",
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ));
+                                    } finally {
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
+                                    }
+                                    nameController.clear();
+                                    emailController.clear();
+                                    passwordController.clear();
+                                    roleController.clearDropDown();
+                                  }
+                                },
                           style: ElevatedButton.styleFrom(
                             textStyle: TextStyle(
                               fontSize: 22,
@@ -303,6 +320,16 @@ class _UserManageScreenState extends State<UserManageScreen> {
                           child: Text('Add  User'),
                         ),
                       ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      if (_isLoading)
+                        Center(
+                          child: CircularProgressIndicator(
+                            color: Color.fromARGB(1000, 5, 150, 105),
+                            strokeWidth: 3,
+                          ),
+                        ),
                     ],
                   ),
                 ),

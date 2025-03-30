@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,6 +37,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     color: Color.fromARGB(1000, 5, 150, 105),
     Icons.remove_red_eye,
   );
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -232,50 +235,64 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              if (_regFormKey.currentState!.validate()) {
-                                try {
-                                  final newUser = await _auth
-                                      .createUserWithEmailAndPassword(
-                                          email: emailController.text,
-                                          password: passwordController.text);
-                                  _firestore.collection('users').add(
-                                    {
-                                      'name': nameController.text.trim(),
-                                      'email': emailController.text.trim(),
-                                      'password':
-                                          passwordController.text.trim(),
-                                      'role': 'User',
-                                      'image': null,
-                                      'timestamp': FieldValue.serverTimestamp()
-                                    },
-                                  );
-                                  if (newUser.user != null) {
-                                    Navigator.pushNamed(
-                                        context, UserHomeScreen.id);
-                                  }
-                                } on FirebaseAuthException catch (e) {
-                                  if (e.code == 'email-already-in-use') {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              "This email is already in use! Please LogIn")),
-                                    );
-                                  }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          "Unexpected Error: User Registration Failed!"),
-                                    ),
-                                  );
-                                }
-                                emailController.clear();
-                                nameController.clear();
-                                passwordController.clear();
-                                confirmpasswordController.clear();
-                              }
-                            },
+                            onPressed: _isLoading
+                                ? null
+                                : () async {
+                                    if (_regFormKey.currentState!.validate()) {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+                                      try {
+                                        final newUser = await _auth
+                                            .createUserWithEmailAndPassword(
+                                                email: emailController.text,
+                                                password:
+                                                    passwordController.text);
+                                        _firestore.collection('users').add(
+                                          {
+                                            'name': nameController.text.trim(),
+                                            'email':
+                                                emailController.text.trim(),
+                                            'password':
+                                                passwordController.text.trim(),
+                                            'role': 'User',
+                                            'image': null,
+                                            'timestamp':
+                                                FieldValue.serverTimestamp()
+                                          },
+                                        );
+                                        if (newUser.user != null) {
+                                          Navigator.pushNamed(
+                                              context, UserHomeScreen.id);
+                                        }
+                                      } on FirebaseAuthException catch (e) {
+                                        if (e.code == 'email-already-in-use') {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    "This email is already in use! Please LogIn")),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                "Unexpected Error: User Registration Failed!"),
+                                          ),
+                                        );
+                                      } finally {
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      }
+                                      emailController.clear();
+                                      nameController.clear();
+                                      passwordController.clear();
+                                      confirmpasswordController.clear();
+                                    }
+                                  },
                             style: ElevatedButton.styleFrom(
                               textStyle: TextStyle(
                                 fontSize: 20,
@@ -313,6 +330,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                     ),
                   ),
+                  if (_isLoading)
+                    BackdropFilter(
+                      filter: ImageFilter.blur(
+                          sigmaX: 0.5, sigmaY: 0.5), // Adds blur effect
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: CircularProgressIndicator(
+                                color: Color.fromARGB(1000, 5, 150, 105),
+                                strokeWidth: 3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

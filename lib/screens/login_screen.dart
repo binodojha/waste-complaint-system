@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     color: Color.fromARGB(1000, 5, 150, 105),
     Icons.remove_red_eye,
   );
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -138,55 +141,73 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              if (_loginFormKey.currentState!.validate()) {
-                                try {
-                                  final user =
-                                      await _auth.signInWithEmailAndPassword(
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim(),
-                                  );
-                                  if (user != null) {
-                                    final currentUser = _auth.currentUser;
-                                    if (currentUser != null) {
-                                      // Query Firestore to get user document by email
-                                      final querySnapshot = await _firestore
-                                          .collection('users')
-                                          .where('email',
-                                              isEqualTo: currentUser.email)
-                                          .limit(1) // Get only one result
-                                          .get();
+                            onPressed: _isLoading
+                                ? null
+                                : () async {
+                                    if (_loginFormKey.currentState!
+                                        .validate()) {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
 
-                                      if (querySnapshot.docs.isNotEmpty) {
-                                        final userData =
-                                            querySnapshot.docs.first.data();
-                                        final role = userData['role'];
+                                      try {
+                                        final user = await _auth
+                                            .signInWithEmailAndPassword(
+                                          email: emailController.text.trim(),
+                                          password:
+                                              passwordController.text.trim(),
+                                        );
+                                        if (user != null) {
+                                          final currentUser = _auth.currentUser;
+                                          if (currentUser != null) {
+                                            // Query Firestore to get user document by email
+                                            final querySnapshot =
+                                                await _firestore
+                                                    .collection('users')
+                                                    .where('email',
+                                                        isEqualTo:
+                                                            currentUser.email)
+                                                    .limit(
+                                                        1) // Get only one result
+                                                    .get();
 
-                                        if (role == 'Admin') {
-                                          Navigator.pushNamed(
-                                              context, AdminScreen.id);
-                                        } else if (role == 'Collector') {
-                                          Navigator.pushNamed(
-                                              context, CollectorHomeScreen.id);
-                                        } else {
-                                          Navigator.pushNamed(
-                                              context, UserHomeScreen.id);
+                                            if (querySnapshot.docs.isNotEmpty) {
+                                              final userData = querySnapshot
+                                                  .docs.first
+                                                  .data();
+                                              final role = userData['role'];
+
+                                              if (role == 'Admin') {
+                                                Navigator.pushNamed(
+                                                    context, AdminScreen.id);
+                                              } else if (role == 'Collector') {
+                                                Navigator.pushNamed(context,
+                                                    CollectorHomeScreen.id);
+                                              } else {
+                                                Navigator.pushNamed(
+                                                    context, UserHomeScreen.id);
+                                              }
+                                            }
+                                          }
                                         }
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                "Incorrect Email/Password"),
+                                            duration: Duration(seconds: 3),
+                                          ),
+                                        );
+                                      } finally {
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
                                       }
                                     }
-                                  }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("Incorrect Email/Password"),
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              }
-                              emailController.clear();
-                              passwordController.clear();
-                            },
+                                    emailController.clear();
+                                    passwordController.clear();
+                                  },
                             style: ElevatedButton.styleFrom(
                               textStyle: TextStyle(
                                 fontSize: 20,
@@ -233,13 +254,43 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  // InkWell(
-                  //   onTap: () {},
-                  //   child: Text(
-                  //     "Forget Password?",
-                  //     style: TextStyle(decoration: TextDecoration.underline),
-                  //   ),
-                  // ),
+                  if (_isLoading)
+                    BackdropFilter(
+                      filter: ImageFilter.blur(
+                          sigmaX: 0.5, sigmaY: 0.5), // Adds blur effect
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(
+                                    color: Color.fromARGB(1000, 5, 150, 105),
+                                    strokeWidth: 3,
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    'Logging in...',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

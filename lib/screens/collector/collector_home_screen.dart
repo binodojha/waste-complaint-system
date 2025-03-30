@@ -69,8 +69,7 @@ class _CollectorHomeScreen extends State<CollectorHomeScreen> {
                         .where((c) =>
                             c['status'] != 'Completed' &&
                             c['status'] != 'Rejected' &&
-                            c['status'] != 'Pending' &&
-                            c['collectorEmail'] == currentUserEmail)
+                            c['status'] != 'Pending')
                         .toList();
                     if (completedComplaints.isEmpty) {
                       return Center(
@@ -85,9 +84,7 @@ class _CollectorHomeScreen extends State<CollectorHomeScreen> {
                       itemCount: complaints.length,
                       itemBuilder: (context, index) {
                         return complaints[index]['status'] != "Completed" &&
-                                complaints[index]['status'] != "Rejected" &&
-                                complaints[index]['collectorEmail'] ==
-                                    currentUserEmail
+                                complaints[index]['status'] != "Rejected"
                             ? CollectorExpandableComplaintCard(
                                 id: complaints[index]['id'],
                                 title: complaints[index]['title'],
