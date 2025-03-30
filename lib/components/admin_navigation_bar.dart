@@ -35,8 +35,8 @@ class AdminNavBar extends StatelessWidget {
           label: "Home",
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.report_problem),
-          label: "Complaints",
+          icon: Icon(Icons.history),
+          label: "History",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.supervised_user_circle),

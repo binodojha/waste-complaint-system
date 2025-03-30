@@ -12,10 +12,16 @@ class CollectorComplaintScreen extends StatefulWidget {
 }
 
 final FirebaseSerivce _firebaseService = FirebaseSerivce();
-final String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+String? currentUserEmail;
 
 class _CollectorComplaintScreen extends State<CollectorComplaintScreen> {
   int? expandedIndex;
+  @override
+  void initState() {
+    currentUserEmail = FirebaseAuth.instance.currentUser!.email;
+    super.initState();
+  }
+
   void toggleExpansion(int index) {
     setState(() {
       if (expandedIndex == index) {
@@ -69,7 +75,7 @@ class _CollectorComplaintScreen extends State<CollectorComplaintScreen> {
                   var complaints = snapshot.data!;
                   final completedComplaints = complaints
                       .where((c) =>
-                          c['status'] == 'Completed' &&
+                          c['status'] != 'Completed' &&
                           c['collectorEmail'] == currentUserEmail)
                       .toList();
                   if (completedComplaints.isEmpty) {

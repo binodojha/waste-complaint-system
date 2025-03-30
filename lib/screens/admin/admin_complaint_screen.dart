@@ -51,10 +51,11 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Completed",
+              "Completed Reports",
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Color.fromARGB(1000, 5, 150, 105),
               ),
             ),
             SizedBox(
@@ -69,7 +70,7 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
                   }
                   var complaints = snapshot.data!;
                   final completedComplaints = complaints
-                      .where((c) => c['status'] == 'Completed')
+                      .where((c) => c['status'] != 'Completed')
                       .toList();
 
                   // If there are no complaints with "Completed" status, show message

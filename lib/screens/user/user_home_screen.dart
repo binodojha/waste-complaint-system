@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swms/components/waste_report_form.dart';
 import 'package:swms/components/user_navigation_bar.dart';
+import 'package:swms/screens/user/user_all_reports_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
   static const String id = 'home_screen';
@@ -50,65 +51,228 @@ class UserHome extends StatelessWidget {
   const UserHome({super.key});
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Complaints",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 25,
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 10),
-          padding: EdgeInsets.all(10),
-          width: double.infinity,
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.blueGrey[100],
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: AllComplaints(),
-        ),
-        SizedBox(
-          height: 30,
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            iconSize: 22,
-            textStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome Section
+          Text(
+            "Welcome Back!",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              color: Color.fromARGB(1000, 5, 150, 105),
             ),
-            padding: EdgeInsets.all(15),
-            shape:
-                BeveledRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            iconColor: Colors.white,
-            foregroundColor: Colors.white,
-            backgroundColor: Color.fromARGB(1000, 5, 150, 105),
           ),
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return ReportForm();
-                });
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          SizedBox(height: 20),
+
+          // Statistics Section
+          Container(
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildStatItem(
+                  icon: Icons.pending_actions,
+                  title: "Pending",
+                  color: Colors.red,
+                  stream: _firestore
+                      .collection('complaints')
+                      .where('email', isEqualTo: loggedInUser)
+                      .where('status', isEqualTo: 'Pending')
+                      .snapshots(),
+                ),
+                _buildStatItem(
+                  icon: Icons.engineering,
+                  title: "In Progress",
+                  color: Colors.blueAccent,
+                  stream: _firestore
+                      .collection('complaints')
+                      .where('email', isEqualTo: loggedInUser)
+                      .where('status', isEqualTo: 'In Progress')
+                      .snapshots(),
+                ),
+                _buildStatItem(
+                  icon: Icons.check_circle,
+                  title: "Completed",
+                  color: Colors.green,
+                  stream: _firestore
+                      .collection('complaints')
+                      .where('email', isEqualTo: loggedInUser)
+                      .where('status', isEqualTo: 'Completed')
+                      .snapshots(),
+                ),
+                _buildStatItem(
+                  icon: Icons.cancel,
+                  title: "Rejected",
+                  color: Colors.black,
+                  stream: _firestore
+                      .collection('complaints')
+                      .where('email', isEqualTo: loggedInUser)
+                      .where('status', isEqualTo: 'Rejected')
+                      .snapshots(),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Quick Actions
+          Text(
+            "Quick Actions",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Row(
             children: [
-              Icon(
-                Icons.add,
+              Expanded(
+                child: _buildQuickActionButton(
+                  context,
+                  icon: Icons.add_circle,
+                  title: "New Complaint",
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ReportForm();
+                      },
+                    );
+                  },
+                ),
               ),
-              SizedBox(
-                width: 10,
+              SizedBox(width: 10),
+              Expanded(
+                child: _buildQuickActionButton(
+                  context,
+                  icon: Icons.history,
+                  title: "History",
+                  onTap: () {
+                    Navigator.pushNamed(context, UserReports.id);
+                  },
+                ),
               ),
-              Text("Report a Waste Pickup"),
             ],
           ),
+          SizedBox(height: 20),
+
+          // Recent Complaints Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Recent Complaints",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.all(10),
+            width: double.infinity,
+            height: 250,
+            decoration: BoxDecoration(
+              color: Colors.blueGrey[100],
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: AllComplaints(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required Stream stream,
+  }) {
+    return StreamBuilder(
+      stream: stream,
+      builder: (context, snapshot) {
+        int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+        return Column(
+          children: [
+            Icon(icon, color: color, size: 30),
+            SizedBox(height: 5),
+            Text(
+              count.toString(),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickActionButton(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
-      ],
+        child: Column(
+          children: [
+            Icon(icon, color: Color.fromARGB(1000, 5, 150, 105), size: 30),
+            SizedBox(height: 5),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -135,7 +299,7 @@ class _AllComplaintsState extends State<AllComplaints> {
           if (snapshot.hasData) {
             final complaints = snapshot.data?.docs;
             for (var complaint in complaints!) {
-              if (complaint['status'] == 'pending') {
+              if (complaint['status'] == 'Pending') {
                 statusDecoration = BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(4.0),
@@ -143,6 +307,11 @@ class _AllComplaintsState extends State<AllComplaints> {
               } else if (complaint['status'] == 'In Progress') {
                 statusDecoration = BoxDecoration(
                   color: Colors.amber[700],
+                  borderRadius: BorderRadius.circular(4.0),
+                );
+              } else if (complaint['status'] == 'Accepted') {
+                statusDecoration = BoxDecoration(
+                  color: Colors.lightGreen,
                   borderRadius: BorderRadius.circular(4.0),
                 );
               } else if (complaint['status'] == 'Rejected') {

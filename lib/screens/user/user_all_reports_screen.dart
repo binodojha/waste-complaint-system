@@ -41,28 +41,58 @@ class _AllUserReports extends State<UserReports> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Completed Reports',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 5),
+                child: Text(
+                  'Report History',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(1000, 5, 150, 105),
+                  ),
                 ),
-              ),
-              AllComplaints(
-                status: 'Completed',
               ),
               SizedBox(
-                height: 70,
+                height: 20,
               ),
-              Text(
-                'Rejected Reports',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+              _buildSectionHeader(
+                'Completed Reports',
+                Icons.check_circle,
+                Colors.green,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: AllComplaints(
+                  status: 'Completed',
                 ),
               ),
-              AllComplaints(
-                status: 'Rejected',
+              SizedBox(
+                height: 50,
+              ),
+              _buildSectionHeader(
+                'Rejected Reports',
+                Icons.cancel,
+                Colors.black,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: AllComplaints(
+                  status: 'Rejected',
+                ),
               )
             ],
           ),
@@ -70,6 +100,22 @@ class _AllUserReports extends State<UserReports> {
       ),
     );
   }
+}
+
+Widget _buildSectionHeader(String title, IconData icon, Color color) {
+  return Row(
+    children: [
+      Icon(icon, color: color, size: 24),
+      SizedBox(width: 10),
+      Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  );
 }
 
 class AllComplaints extends StatefulWidget {

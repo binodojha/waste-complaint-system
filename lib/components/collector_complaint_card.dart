@@ -120,15 +120,13 @@ class _ExpandableComplaintCardState
                     Text(
                       displayStatus,
                       style: TextStyle(
-                          color: displayStatus == 'Pending'
-                              ? Colors.red
-                              : displayStatus == 'Approved'
-                                  ? const Color.fromARGB(255, 70, 170, 185)
-                                  : displayStatus == 'In Progress'
-                                      ? Colors.amber[700]
-                                      : displayStatus == 'Rejected'
-                                          ? Colors.black
-                                          : Colors.green,
+                          color: displayStatus == 'Approved'
+                              ? const Color.fromARGB(255, 70, 170, 185)
+                              : displayStatus == 'In Progress'
+                                  ? Colors.amber[700]
+                                  : displayStatus == 'Rejected'
+                                      ? Colors.black
+                                      : Colors.green,
                           fontStyle: FontStyle.italic,
                           fontWeight: FontWeight.bold),
                     ),
