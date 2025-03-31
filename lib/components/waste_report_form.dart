@@ -129,12 +129,25 @@ class _ReportFormState extends State<ReportForm> {
                     context: context,
                     builder: (context) {
                       return Container(
-                        height: 120,
+                        height: 160,
                         width: double.infinity,
-                        color: Color.fromARGB(1000, 5, 150, 105),
+                        color: Colors.white,
+                        padding: EdgeInsets.only(
+                          left: 20,
+                          right: 20,
+                        ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              'Choose a Image',
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             imagePickButton(
                               title: "Gallery",
                               icon: Icons.image_sharp,
@@ -271,7 +284,6 @@ Widget imagePickButton({
 }) {
   return Padding(
     padding: EdgeInsets.only(
-      left: 10.0,
       top: 5.0,
       bottom: 5.0,
     ),
