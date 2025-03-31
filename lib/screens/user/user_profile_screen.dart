@@ -5,11 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:swms/components/user_navigation_bar.dart';
-import 'package:swms/screens/login_screen.dart';
 import 'package:swms/utils/image_compress.dart';
 import 'package:swms/utils/firebase_serivce.dart';
+import 'package:swms/screens/login_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   static const String id = 'user_profile_screen';
@@ -19,7 +18,7 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreen extends State<UserProfileScreen> {
-  final String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+  final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   final FirebaseSerivce _firebaseService = FirebaseSerivce();
   File? newImage;
@@ -27,6 +26,8 @@ class _UserProfileScreen extends State<UserProfileScreen> {
   String? docId;
   String fullName = "Loading...";
   String email = "Loading...";
+  String userRole = "User";
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -35,8 +36,8 @@ class _UserProfileScreen extends State<UserProfileScreen> {
   }
 
   void fetchUserData() async {
+    final currentUserEmail = _auth.currentUser?.email;
     if (currentUserEmail == null) return;
-
     try {
       QuerySnapshot userQuery = await _firestore
           .collection('users')
@@ -52,257 +53,467 @@ class _UserProfileScreen extends State<UserProfileScreen> {
           base64ImageString = userDoc['image'];
           fullName = userDoc['name'] ?? "No Name Available";
           email = userDoc['email'] ?? "No Email Available";
+          userRole = userDoc['role'] ?? "User";
+          _isLoading = false;
         });
       } else {
         setState(() {
           fullName = "User Not Found";
           email = "User Not Found";
+          _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
         fullName = "Error fetching data";
         email = "Error fetching data";
+        _isLoading = false;
       });
     }
   }
 
   Future pickImage(ImageSource source) async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       final pickedImage = await ImagePicker().pickImage(source: source);
-      if (pickedImage == null) return null;
+      if (pickedImage == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return null;
+      }
+
       final imageTemporary = File(pickedImage.path);
       // compress image
       File? compressedImage = await compressImage(imageTemporary);
-      if (compressedImage == null) return null;
+      if (compressedImage == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return null;
+      }
+
       // Convert to base64
       List<int> imageBytes = await compressedImage.readAsBytes();
       base64ImageString = base64Encode(imageBytes);
       if (docId != null) {
         await _firebaseService.updateUserImage(docId!, base64ImageString!);
-        setState(() {}); // Refresh UI
+        setState(() {
+          _isLoading = false;
+        });
       } else {
         print("Error: docId is null. Cannot update user image.");
+        setState(() {
+          _isLoading = false;
+        });
       }
     } on PlatformException catch (e) {
-      print('failed to pick image:$e');
+      print('Failed to pick image: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _handleLogout(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _auth.signOut();
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.pushNamedAndRemoveUntil(
+          context, LoginScreen.id, (route) => false);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error logging out. Please try again.")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: UserNavBar(
-        currentIndex: 2,
-      ),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Image.asset(
-              'assets/images/logo.png',
-              width: 100,
+    return Stack(
+      children: [
+        Scaffold(
+          bottomNavigationBar: UserNavBar(
+            currentIndex: 2,
+          ),
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 100,
+                ),
+              ],
             ),
-            // CircleAvatar(
-            //     // backgroundImage: AssetImage(''),
-            //     ),
-          ],
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              width: double.maxFinite,
-              padding: EdgeInsets.only(top: 10, bottom: 20),
-              color: Color.fromARGB(255, 22, 197, 145),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "My Profile",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile header section
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromARGB(255, 22, 197, 145),
+                        Color.fromARGB(255, 5, 150, 105),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(50),
+                      bottomRight: Radius.circular(50),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey,
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  InkWell(
-                    onTap: () => {
-                      showModalBottomSheet(
-                          useSafeArea: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          context: context,
-                          builder: (context) {
-                            return Container(
-                              height: 120,
-                              width: double.infinity,
-                              color: Color.fromARGB(1000, 5, 150, 105),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  imagePickButton(
-                                    title: "Gallery",
-                                    icon: Icons.image_sharp,
-                                    onClicked: () =>
-                                        pickImage(ImageSource.gallery),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "My Profile",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 25),
+                      GestureDetector(
+                        onTap: () => {
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) {
+                              return Container(
+                                padding: EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
                                   ),
-                                  imagePickButton(
-                                      title: "Camera",
-                                      icon: Icons.camera_alt,
-                                      onClicked: () =>
-                                          pickImage(ImageSource.camera)),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Change Profile Photo",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            Color.fromARGB(1000, 5, 150, 105),
+                                      ),
+                                    ),
+                                    SizedBox(height: 20),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        _buildImageSourceOption(
+                                          icon: Icons.photo_library,
+                                          title: "Gallery",
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            pickImage(ImageSource.gallery);
+                                          },
+                                        ),
+                                        _buildImageSourceOption(
+                                          icon: Icons.camera_alt,
+                                          title: "Camera",
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            pickImage(ImageSource.camera);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          )
+                        },
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
                                 ],
                               ),
-                            );
-                          })
-                    },
-                    child: CircleAvatar(
-                      backgroundImage: (base64ImageString != null &&
-                              base64ImageString!.isNotEmpty)
-                          ? MemoryImage(base64Decode(base64ImageString!))
-                          : null,
-                      radius: 50,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.only(left: 20, right: 20, top: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Personal Information',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    padding:
-                        EdgeInsets.only(left: 4, right: 4, top: 5, bottom: 5),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Full Name:',
+                              child: CircleAvatar(
+                                backgroundImage: (base64ImageString != null &&
+                                        base64ImageString!.isNotEmpty)
+                                    ? MemoryImage(
+                                        base64Decode(base64ImageString!))
+                                    : null,
+                                backgroundColor: Colors.grey[300],
+                                radius: 60,
+                                child: (base64ImageString == null ||
+                                        base64ImageString!.isEmpty)
+                                    ? Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: Colors.grey[700],
+                                      )
+                                    : null,
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Color.fromARGB(255, 22, 197, 145),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: Color.fromARGB(255, 22, 197, 145),
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      Text(
+                        fullName,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          userRole,
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Text(fullName),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    padding:
-                        EdgeInsets.only(left: 4, right: 4, top: 5, bottom: 5),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(6))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Email:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                ),
+
+                SizedBox(height: 30),
+
+                // Personal Information Section
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            color: Color.fromARGB(1000, 5, 150, 105),
+                            size: 24,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Personal Information',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      _buildInfoItem(
+                        title: 'Full Name',
+                        value: fullName,
+                        icon: Icons.badge,
+                      ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Email',
+                        value: email,
+                        icon: Icons.email,
+                      ),
+                      SizedBox(height: 40),
+
+                      // Logout Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _handleLogout(context),
+                          icon: Icon(
+                            Icons.logout,
+                            color: Colors.white,
+                          ),
+                          label: Text('Log Out'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        Text(email),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 30),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+        ),
+        if (_isLoading)
           Container(
-            margin: EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 70),
-            width: double.maxFinite,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, LoginScreen.id);
-              },
-              style: ElevatedButton.styleFrom(
-                textStyle: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-                padding: EdgeInsets.all(15),
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                foregroundColor: Colors.white,
-                backgroundColor: Color.fromARGB(255, 235, 22, 6),
+            color: Colors.black54,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Color.fromARGB(1000, 5, 150, 105),
               ),
-              child: Text('Log Out'),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 228, 222, 222),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: Color.fromARGB(1000, 5, 150, 105),
+              size: 30,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
       ),
     );
   }
-}
 
-Widget imagePickButton({
-  required String title,
-  required IconData icon,
-  required VoidCallback onClicked,
-}) {
-  return Padding(
-    padding: EdgeInsets.only(
-      left: 10.0,
-      top: 5.0,
-      bottom: 5.0,
-    ),
-    child: ElevatedButton(
-      onPressed: onClicked,
-      style: ElevatedButton.styleFrom(
-        iconSize: 30,
-        iconColor: Colors.black,
-        backgroundColor: Color.fromARGB(255, 70, 255, 196),
-        shape: BeveledRectangleBorder(
-          borderRadius: BorderRadius.circular(2.0),
-        ),
+  Widget _buildInfoItem({
+    required String title,
+    required String value,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        spacing: 15.0,
         children: [
-          Icon(
-            icon,
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 225, 222, 222),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: Color.fromARGB(1000, 5, 150, 105),
+              size: 24,
+            ),
           ),
-          Text(title,
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-              )),
+          SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }

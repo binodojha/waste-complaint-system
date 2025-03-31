@@ -176,7 +176,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   .docs.first
                                                   .data();
                                               final role = userData['role'];
-
                                               if (role == 'Admin') {
                                                 Navigator.pushNamed(
                                                     context, AdminScreen.id);
