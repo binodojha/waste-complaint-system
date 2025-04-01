@@ -190,7 +190,7 @@ class UserHome extends StatelessWidget {
             margin: EdgeInsets.only(top: 10),
             padding: EdgeInsets.all(10),
             width: double.infinity,
-            height: 250,
+            height: 290,
             decoration: BoxDecoration(
               color: Colors.blueGrey[100],
               borderRadius: BorderRadius.circular(10.0),

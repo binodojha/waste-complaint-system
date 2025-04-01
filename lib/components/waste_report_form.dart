@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:swms/components/map_google.dart';
@@ -17,11 +18,19 @@ class ReportForm extends StatefulWidget {
 }
 
 class _ReportFormState extends State<ReportForm> {
+  String? errorImageMesagge;
   final _fireauth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  final FocusNode _titleFocusNode = FocusNode();
+  final FocusNode _descriptionFocusNode = FocusNode();
+  final FocusNode _contactFocusNode = FocusNode();
+  final FocusNode _imageFocusNode = FocusNode();
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController contactController = TextEditingController();
+  SingleValueDropDownController wardController =
+      SingleValueDropDownController();
   final _reportFormKey = GlobalKey<FormState>();
   String status = 'Pending';
   String? loggedInUser;
@@ -83,13 +92,18 @@ class _ReportFormState extends State<ReportForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
+              focusNode: _titleFocusNode,
               controller: titleController,
               validator: (value) {
-                if (value == null || value.isEmpty || value.length < 5) {
-                  return 'Please enter some text';
+                if (value == null || value.isEmpty) {
+                  return 'Title is required';
+                }
+                if (value.length < 5) {
+                  return 'Title must be at least 5 characters';
                 }
                 return null;
               },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               maxLength: 15,
               decoration: InputDecoration(
                 hintText: "Title",
@@ -97,9 +111,11 @@ class _ReportFormState extends State<ReportForm> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
+                errorMaxLines: 2,
               ),
             ),
             TextFormField(
+              focusNode: _descriptionFocusNode,
               controller: descriptionController,
               keyboardType: TextInputType.multiline,
               maxLines: 4,
@@ -107,6 +123,7 @@ class _ReportFormState extends State<ReportForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please Enter description!';
                 }
+                return null;
               },
               decoration: InputDecoration(
                 hintText: "Description",
@@ -119,7 +136,76 @@ class _ReportFormState extends State<ReportForm> {
             SizedBox(
               height: 10,
             ),
+            DropDownTextField(
+              controller: wardController,
+              dropdownRadius: 8,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please Select a Ward';
+                }
+                return null;
+              },
+              textFieldDecoration: InputDecoration(
+                  hintText: 'Select a Ward No',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8))),
+              dropDownList: [
+                DropDownValueModel(name: '1', value: '1'),
+                DropDownValueModel(name: '2', value: '2'),
+                DropDownValueModel(name: '3', value: '3'),
+                DropDownValueModel(name: '4', value: '4'),
+                DropDownValueModel(name: '5', value: '5'),
+                DropDownValueModel(name: '6', value: '6'),
+                DropDownValueModel(name: '7', value: '7'),
+                DropDownValueModel(name: '8', value: '8'),
+                DropDownValueModel(name: '9', value: '9'),
+                DropDownValueModel(name: '10', value: '10'),
+                DropDownValueModel(name: '11', value: '11'),
+                DropDownValueModel(name: '12', value: '12'),
+                DropDownValueModel(name: '13', value: '13'),
+                DropDownValueModel(name: '14', value: '14'),
+                DropDownValueModel(name: '15', value: '15'),
+                DropDownValueModel(name: '16', value: '16'),
+                DropDownValueModel(name: '17', value: '17'),
+                DropDownValueModel(name: '18', value: '18'),
+                DropDownValueModel(name: '19', value: '19'),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              focusNode: _contactFocusNode,
+              controller: contactController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: "Mobile Number",
+                prefixIcon: Icon(
+                  Icons.phone_android,
+                  color: Color.fromARGB(1000, 5, 150, 105),
+                ),
+                hintText: "Enter your Mobile number here",
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Mobile Number is required";
+                }
+                if (value.length < 10) {
+                  return "Mobile Number should contains 10 number";
+                }
+                if (value.length >= 11) {
+                  return "Mobile Number should only contains 10 number";
+                }
+                return null;
+              },
+            ),
+            SizedBox(
+              height: 10,
+            ),
             InkWell(
+              focusNode: _imageFocusNode,
               onTap: () => {
                 showModalBottomSheet(
                     useSafeArea: true,
@@ -196,6 +282,17 @@ class _ReportFormState extends State<ReportForm> {
                       ),
               ),
             ),
+            if (errorImageMesagge != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, bottom: 6.0),
+                child: Text(
+                  errorImageMesagge!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
             SizedBox(
               height: 10,
             ),
@@ -231,10 +328,21 @@ class _ReportFormState extends State<ReportForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_reportFormKey.currentState!.validate()) {
+                    setState(() {
+                      errorImageMesagge = null;
+                    });
+
+                    // Check for image
+                    if (newImage == null) {
+                      setState(() {
+                        errorImageMesagge = 'Please select an image';
+                      });
+                      return;
+                    }
                     try {
-                      _firestore.collection('complaints').add(
+                      await _firestore.collection('complaints').add(
                         {
                           'title': titleController.text,
                           'description': descriptionController.text,
@@ -243,16 +351,23 @@ class _ReportFormState extends State<ReportForm> {
                           'email': loggedInUser,
                           'collectorEmail': "",
                           'image': base64ImageString,
+                          'ward': wardController.dropDownValue!.value,
+                          'contact.no': contactController.text,
                           'timestamp': FieldValue.serverTimestamp()
                         },
                       );
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //     SnackBar(content: Text("Report Submitted")));
+                      Navigator.pop(context);
                     } catch (e) {
                       print("Firestore Error: $e");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Failed to submit report. Please try again.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
                   }
-                  Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(
