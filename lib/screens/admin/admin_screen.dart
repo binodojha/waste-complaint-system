@@ -125,6 +125,8 @@ class _AdminScreenState extends State<AdminScreen> {
                                   complaints[index]['email'] ?? 'Not Available',
                               userContact: complaints[index]['contact'] ??
                                   'Not Available',
+                              collectorEmail: complaints[index]
+                                  ['collectorEmail'],
                               onTap: () => toggleExpansion(index),
                               isExpanded: expandedIndex == index,
                               status1: "Rejected",

@@ -4,7 +4,11 @@ class FirebaseSerivce {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // fetch data from complaints documents
   Stream<List<Map<String, dynamic>>> getComplaints() {
-    return _firestore.collection('complaints').snapshots().map((snapshot) {
+    return _firestore
+        .collection('complaints')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         return {
           'id': doc.id,

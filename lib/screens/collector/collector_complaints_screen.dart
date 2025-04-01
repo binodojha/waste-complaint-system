@@ -75,7 +75,7 @@ class _CollectorComplaintScreen extends State<CollectorComplaintScreen> {
                   var complaints = snapshot.data!;
                   final completedComplaints = complaints
                       .where((c) =>
-                          c['status'] != 'Completed' &&
+                          c['status'] == 'Completed' &&
                           c['collectorEmail'] == currentUserEmail)
                       .toList();
                   if (completedComplaints.isEmpty) {
@@ -100,6 +100,8 @@ class _CollectorComplaintScreen extends State<CollectorComplaintScreen> {
                               location: complaints[index]['location'],
                               status: complaints[index]['status'],
                               image: complaints[index]['image'],
+                              userEmail: complaints[index]['email'],
+                              userContact: complaints[index]['contact'],
                               collectorEmail: complaints[index]
                                   ['collectorEmail'],
                               onTap: () => toggleExpansion(index),

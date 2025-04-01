@@ -157,6 +157,8 @@ class _CollectorHomeScreen extends State<CollectorHomeScreen> {
                           location: collectorComplaints[index]['location'],
                           status: collectorComplaints[index]['status'],
                           image: collectorComplaints[index]['image'],
+                          userEmail: collectorComplaints[index]['email'],
+                          userContact: collectorComplaints[index]['contact'],
                           collectorEmail: collectorComplaints[index]
                               ['collectorEmail'],
                           onTap: () => toggleExpansion(index),

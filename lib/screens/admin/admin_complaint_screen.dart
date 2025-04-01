@@ -95,6 +95,8 @@ class _ComplaintScreenState extends State<AdminComplaintScreen> {
                               status: complaints[index]['status'],
                               userContact: complaints[index]['contact'],
                               userEmail: complaints[index]['email'],
+                              collectorEmail: complaints[index]
+                                  ['collectorEmail'],
                               image: complaints[index]['image'],
                               onTap: () => toggleExpansion(index),
                               isExpanded: expandedIndex == index,

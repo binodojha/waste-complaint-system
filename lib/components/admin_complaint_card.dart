@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:swms/utils/firebase_serivce.dart';
+import 'package:swms/components/map_google.dart';
 
 final FirebaseSerivce _firebaseService = FirebaseSerivce();
 
@@ -12,6 +13,7 @@ class ExpandableComplaintCard extends StatefulWidget {
   final String image;
   final String userEmail;
   final String userContact;
+  final String collectorEmail;
   final bool isExpanded;
   final VoidCallback onTap;
   final String status1, status2;
@@ -29,6 +31,7 @@ class ExpandableComplaintCard extends StatefulWidget {
       required this.id,
       required this.userEmail,
       required this.userContact,
+      required this.collectorEmail,
       required this.status1,
       required this.status2});
 
@@ -40,6 +43,19 @@ class ExpandableComplaintCard extends StatefulWidget {
 class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
   //Track the new status
   String? updatedStatus;
+  String? mapLocation;
+  @override
+  void initState() {
+    super.initState();
+    mapLocation = widget.location;
+  }
+
+  void updateLocation(String newLocation) {
+    setState(() {
+      mapLocation = newLocation;
+    });
+  }
+
   void updatStatus(BuildContext context, String docId, String newStatus,
       String? collectorEmail) async {
     try {
@@ -129,6 +145,20 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                     Text('${widget.location}'),
                   ],
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  height: 200,
+                  child: Map(
+                    onLocationSelected: updateLocation,
+                    initialLocation: widget.location,
+                    draggableMarker: false,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
                 Row(
                   children: [
                     Text(
@@ -145,6 +175,15 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text('${widget.userContact}')
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Collector Email: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.collectorEmail}')
                   ],
                 ),
                 Row(

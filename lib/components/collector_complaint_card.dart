@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:swms/utils/firebase_serivce.dart';
+import 'package:swms/components/map_google.dart';
 
 final FirebaseSerivce _firebaseService = FirebaseSerivce();
 final String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
@@ -12,6 +13,8 @@ class CollectorExpandableComplaintCard extends StatefulWidget {
   final String location;
   final String status;
   final String image;
+  final String userEmail;
+  final String userContact;
   final bool isExpanded;
   final VoidCallback onTap;
   final String status1, status2;
@@ -28,6 +31,8 @@ class CollectorExpandableComplaintCard extends StatefulWidget {
       required this.onTap,
       required this.isExpanded,
       required this.id,
+      required this.userEmail,
+      required this.userContact,
       required this.status1,
       required this.collectorEmail,
       required this.status2});
@@ -41,6 +46,19 @@ class _ExpandableComplaintCardState
     extends State<CollectorExpandableComplaintCard> {
   //Track the new status
   String? updatedStatus;
+  String? mapLocation;
+  @override
+  void initState() {
+    super.initState();
+    mapLocation = widget.location;
+  }
+
+  void updateLocation(String newLocation) {
+    setState(() {
+      mapLocation = newLocation;
+    });
+  }
+
   void updatStatus(BuildContext context, String docId, String newStatus,
       collectorEmail) async {
     try {
@@ -101,7 +119,15 @@ class _ExpandableComplaintCardState
                 SizedBox(
                   height: 10,
                 ),
-                Text("Description: ${widget.description}"),
+                Row(
+                  children: [
+                    Text(
+                      "Description: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.description}'),
+                  ],
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -113,10 +139,53 @@ class _ExpandableComplaintCardState
                     base64Decode(widget.image),
                   ),
                 ),
-                Text("Location: ${widget.location}"),
                 Row(
                   children: [
-                    Text("Status: "),
+                    Text(
+                      "Location: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.location}'),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  height: 200,
+                  child: Map(
+                    onLocationSelected: updateLocation,
+                    initialLocation: widget.location,
+                    draggableMarker: false,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "User Email: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.userEmail}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "User Contact: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.userContact}')
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Status: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Text(
                       displayStatus,
                       style: TextStyle(
