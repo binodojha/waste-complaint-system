@@ -19,11 +19,15 @@ class _UserManageScreenState extends State<UserManageScreen> {
   final _addUserFormKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController contactController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   SingleValueDropDownController roleController =
       SingleValueDropDownController();
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _addressFocusNode = FocusNode();
+  final FocusNode _contactFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   String fullName = "Loading...";
   String email = "Loading...";
@@ -122,6 +126,50 @@ class _UserManageScreenState extends State<UserManageScreen> {
                         },
                         decoration: InputDecoration(
                           hintText: "Full Name",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        focusNode: _addressFocusNode,
+                        controller: addressController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Address';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: "Address",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        focusNode: _contactFocusNode,
+                        controller: contactController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Mobile Number is required";
+                          }
+                          if (value.length < 10) {
+                            return "Mobile Number should contains 10 number";
+                          }
+                          if (value.length >= 11) {
+                            return "Mobile Number should only contains 10 number";
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: "Mobile Number",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -245,14 +293,16 @@ class _UserManageScreenState extends State<UserManageScreen> {
                                               email: emailController.text,
                                               password:
                                                   passwordController.text);
-                                      _firestore.collection('users').add(
+                                      await _firestore.collection('users').add(
                                         {
                                           'name': nameController.text,
                                           'email': emailController.text,
                                           'password': passwordController.text,
                                           'role': roleController
                                               .dropDownValue!.value,
-                                          'image': null,
+                                          'address': addressController.text,
+                                          'contact': contactController.text,
+                                          'image': '',
                                           'timestamp':
                                               FieldValue.serverTimestamp()
                                         },
@@ -303,6 +353,8 @@ class _UserManageScreenState extends State<UserManageScreen> {
                                     emailController.clear();
                                     passwordController.clear();
                                     roleController.clearDropDown();
+                                    addressController.clear();
+                                    contactController.clear();
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
