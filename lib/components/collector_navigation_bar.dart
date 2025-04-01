@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swms/screens/collector/collector_home_screen.dart';
 import 'package:swms/screens/collector/collector_profile_screen.dart';
-import 'package:swms/screens/collector/colletor_complaints_screen.dart';
+import 'package:swms/screens/collector/collector_complaints_screen.dart';
 
 class CollectorNavBar extends StatelessWidget {
   final int currentIndex;

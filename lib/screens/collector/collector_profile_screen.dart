@@ -26,7 +26,9 @@ class _CollectorProfileScreen extends State<CollectorProfileScreen> {
   String? docId;
   String fullName = "Loading...";
   String email = "Loading...";
-  String userRole = "Collector";
+  String address = "Loading...";
+  String contact = "Loading...";
+  String userRole = "Admin";
   bool _isLoading = false;
 
   @override
@@ -53,6 +55,8 @@ class _CollectorProfileScreen extends State<CollectorProfileScreen> {
           base64ImageString = userDoc['image'];
           fullName = userDoc['name'] ?? "No Name Available";
           email = userDoc['email'] ?? "No Email Available";
+          address = userDoc['address'] ?? "No Address Available";
+          contact = userDoc['contact'] ?? "No Number Available";
           userRole = userDoc['role'] ?? "Collector";
           _isLoading = false;
         });
@@ -382,6 +386,18 @@ class _CollectorProfileScreen extends State<CollectorProfileScreen> {
                         title: 'Email',
                         value: email,
                         icon: Icons.email,
+                      ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Address',
+                        value: address,
+                        icon: Icons.location_city,
+                      ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Contact Number',
+                        value: contact,
+                        icon: Icons.phone,
                       ),
                       SizedBox(height: 40),
 

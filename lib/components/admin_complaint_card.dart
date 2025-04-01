@@ -10,6 +10,8 @@ class ExpandableComplaintCard extends StatefulWidget {
   final String location;
   final String status;
   final String image;
+  final String userEmail;
+  final String userContact;
   final bool isExpanded;
   final VoidCallback onTap;
   final String status1, status2;
@@ -25,6 +27,8 @@ class ExpandableComplaintCard extends StatefulWidget {
       required this.onTap,
       required this.isExpanded,
       required this.id,
+      required this.userEmail,
+      required this.userContact,
       required this.status1,
       required this.status2});
 
@@ -96,7 +100,15 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                 SizedBox(
                   height: 10,
                 ),
-                Text("Description: ${widget.description}"),
+                Row(
+                  children: [
+                    Text(
+                      "Description: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.description}'),
+                  ],
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -108,10 +120,39 @@ class _ExpandableComplaintCardState extends State<ExpandableComplaintCard> {
                     base64Decode(widget.image),
                   ),
                 ),
-                Text("Location: ${widget.location}"),
                 Row(
                   children: [
-                    Text("Status: "),
+                    Text(
+                      "Location: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.location}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "User Email: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.userEmail}')
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "User Contact: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${widget.userContact}')
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Status: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Text(
                       displayStatus,
                       style: TextStyle(

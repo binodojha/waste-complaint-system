@@ -14,6 +14,8 @@ class FirebaseSerivce {
           'email': doc['email'],
           'image': doc['image'],
           'timestamp': doc['timestamp'],
+          'contact': doc['contact'],
+          'ward': doc['ward'],
           'collectorEmail': doc['collectorEmail'],
           'status': doc['status'],
         };

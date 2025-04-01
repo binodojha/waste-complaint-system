@@ -110,12 +110,21 @@ class _AdminScreenState extends State<AdminScreen> {
                       return complaints[index]['status'] != "Completed" &&
                               complaints[index]['status'] != "Rejected"
                           ? ExpandableComplaintCard(
-                              id: complaints[index]['id'],
-                              title: complaints[index]['title'],
-                              description: complaints[index]['description'],
-                              location: complaints[index]['location'],
-                              status: complaints[index]['status'],
-                              image: complaints[index]['image'],
+                              id: complaints[index]['id'] ?? 'Not Available',
+                              title:
+                                  complaints[index]['title'] ?? 'Not Available',
+                              description: complaints[index]['description'] ??
+                                  'Not Available',
+                              location: complaints[index]['location'] ??
+                                  'Not Available',
+                              status: complaints[index]['status'] ??
+                                  'Not Available',
+                              image:
+                                  complaints[index]['image'] ?? 'Not Available',
+                              userEmail:
+                                  complaints[index]['email'] ?? 'Not Available',
+                              userContact: complaints[index]['contact'] ??
+                                  'Not Available',
                               onTap: () => toggleExpansion(index),
                               isExpanded: expandedIndex == index,
                               status1: "Rejected",
@@ -142,39 +151,19 @@ class ComplaintsDashboard extends StatelessWidget {
     return StreamBuilder(
         stream: _firebaseService.getComplaints(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          var complaints = snapshot.data!;
+          var complaints = snapshot.data ?? [];
           // Count the complaints
-          String totalComplaintsInt = complaints.length.toString();
-          String pendingComplaintsInt = complaints
-              .where((c) => c['status'] == 'Pending')
-              .length
-              .toString();
-          String completedComplaintsInt = complaints
-              .where((c) => c['status'] == 'Completed')
-              .length
-              .toString();
-          String inProgressComplaintsInt = complaints
-              .where((c) => c['status'] == 'In Progress')
-              .length
-              .toString();
-          String approvedComplaintsInt = complaints
-              .where((c) => c['status'] == 'Approved')
-              .length
-              .toString();
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                complaintNumberWidget(
-                    statusTitle: 'Total Complaints',
-                    numberTitle: totalComplaintsInt,
-                    color: Color.fromARGB(1000, 5, 150, 105),
-                    statusTitleSize: 15.0,
-                    numberTitleSize: 20.0),
+                _buildStatItem(
+                  title: 'Total Complaints',
+                  complaints: complaints,
+                  countFunction: (complaints) => complaints.length.toString(),
+                  color: Color.fromARGB(1000, 5, 150, 105),
+                ),
                 SizedBox(
                   width: 12,
                 ),
@@ -184,48 +173,56 @@ class ComplaintsDashboard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        complaintNumberWidget(
-                          statusTitle: 'Pending',
-                          numberTitle: pendingComplaintsInt,
+                        _buildStatItem(
+                          title: 'Pending',
+                          complaints: complaints,
+                          countFunction: (complaints) => complaints
+                              .where((c) => c['status'] == 'Pending')
+                              .length
+                              .toString(),
                           color: Colors.amber[500],
-                          statusTitleSize: 15.0,
-                          numberTitleSize: 20.0,
                           width: 92.0,
                         ),
                         SizedBox(
                           width: 12,
                         ),
-                        complaintNumberWidget(
-                          statusTitle: 'Approved',
-                          numberTitle: approvedComplaintsInt,
+                        _buildStatItem(
+                          title: 'Approved',
+                          complaints: complaints,
+                          countFunction: (complaints) => complaints
+                              .where((c) => c['status'] == 'Approved')
+                              .length
+                              .toString(),
                           color: Colors.blueAccent,
-                          statusTitleSize: 15.0,
-                          numberTitleSize: 20.0,
                           width: 92.0,
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        complaintNumberWidget(
-                          statusTitle: 'In Progress',
-                          numberTitle: inProgressComplaintsInt,
+                        _buildStatItem(
+                          title: 'In Progress',
+                          complaints: complaints,
+                          countFunction: (complaints) => complaints
+                              .where((c) => c['status'] == 'In Progress')
+                              .length
+                              .toString(),
                           color: Colors.green,
-                          statusTitleSize: 15.0,
-                          numberTitleSize: 20.0,
                           width: 92.0,
                         ),
                         SizedBox(
                           width: 12,
                         ),
-                        complaintNumberWidget(
-                          statusTitle: 'Completed',
-                          numberTitle: completedComplaintsInt,
+                        _buildStatItem(
+                          title: 'Completed',
+                          complaints: complaints,
+                          countFunction: (complaints) => complaints
+                              .where((c) => c['status'] == 'Completed')
+                              .length
+                              .toString(),
                           color: Colors.lightGreen,
-                          statusTitleSize: 15.0,
-                          numberTitleSize: 20.0,
                           width: 92.0,
-                        ),
+                        )
                       ],
                     )
                   ],
@@ -237,19 +234,20 @@ class ComplaintsDashboard extends StatelessWidget {
   }
 }
 
-Widget complaintNumberWidget({
-  required String statusTitle,
-  required String numberTitle,
+Widget _buildStatItem({
+  required String title,
+  required List complaints,
+  required Function countFunction,
   required color,
-  required statusTitleSize,
-  required numberTitleSize,
-  width,
-  height,
+  double? width,
+  double? height,
 }) {
+  String count = countFunction(complaints);
   TextStyle commonTextStyle = TextStyle(
     color: Colors.white,
     fontWeight: FontWeight.bold,
   );
+
   return Container(
     width: width,
     height: height,
@@ -262,15 +260,15 @@ Widget complaintNumberWidget({
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          statusTitle,
+          title,
           style: commonTextStyle.copyWith(
-            fontSize: statusTitleSize,
+            fontSize: 15.0,
           ),
         ),
         Text(
-          numberTitle,
+          count,
           style: commonTextStyle.copyWith(
-            fontSize: numberTitleSize,
+            fontSize: 20.0,
           ),
         ),
       ],

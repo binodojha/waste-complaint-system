@@ -352,7 +352,7 @@ class _ReportFormState extends State<ReportForm> {
                           'collectorEmail': "",
                           'image': base64ImageString,
                           'ward': wardController.dropDownValue!.value,
-                          'contact.no': contactController.text,
+                          'contact': contactController.text,
                           'timestamp': FieldValue.serverTimestamp()
                         },
                       );

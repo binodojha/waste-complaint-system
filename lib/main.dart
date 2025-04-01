@@ -7,7 +7,7 @@ import 'package:swms/screens/admin/admin_user_manage_screen.dart';
 import 'package:swms/screens/admin/admin_profile_screen.dart';
 import 'package:swms/screens/collector/collector_home_screen.dart';
 import 'package:swms/screens/collector/collector_profile_screen.dart';
-import 'package:swms/screens/collector/colletor_complaints_screen.dart';
+import 'package:swms/screens/collector/collector_complaints_screen.dart';
 import 'package:swms/screens/user/user_all_reports_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/login_screen.dart';
