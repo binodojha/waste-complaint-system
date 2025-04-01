@@ -26,6 +26,8 @@ class _UserProfileScreen extends State<UserProfileScreen> {
   String? docId;
   String fullName = "Loading...";
   String email = "Loading...";
+  String address = "Loading...";
+  String contact = "Loading...";
   String userRole = "User";
   bool _isLoading = false;
 
@@ -54,6 +56,8 @@ class _UserProfileScreen extends State<UserProfileScreen> {
           fullName = userDoc['name'] ?? "No Name Available";
           email = userDoc['email'] ?? "No Email Available";
           userRole = userDoc['role'] ?? "User";
+          address = userDoc['address'] ?? "No Address Available";
+          contact = userDoc['contact'] ?? "No Number Available";
           _isLoading = false;
         });
       } else {
@@ -382,6 +386,18 @@ class _UserProfileScreen extends State<UserProfileScreen> {
                         title: 'Email',
                         value: email,
                         icon: Icons.email,
+                      ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Address',
+                        value: address,
+                        icon: Icons.location_city,
+                      ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Contact Number',
+                        value: contact,
+                        icon: Icons.phone,
                       ),
                       SizedBox(height: 40),
 

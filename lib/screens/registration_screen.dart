@@ -289,6 +289,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             if (value != passwordController.text) {
                               return "password does not match";
                             }
+                            return null;
                           },
                         ),
                         SizedBox(
@@ -320,7 +321,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                             'role': 'User',
                                             'address':
                                                 addressController.text.trim(),
-                                            'contact.no':
+                                            'contact':
                                                 contactController.text.trim(),
                                             'image': null,
                                             'timestamp':

@@ -27,6 +27,8 @@ class _AdminProfileScreen extends State<AdminProfileScreen> {
   String fullName = "Loading...";
   String email = "Loading...";
   String userRole = "Admin";
+  String address = "Loading...";
+  String contact = "Loading...";
   bool _isLoading = false;
 
   @override
@@ -53,6 +55,8 @@ class _AdminProfileScreen extends State<AdminProfileScreen> {
           base64ImageString = userDoc['image'];
           fullName = userDoc['name'] ?? "No Name Available";
           email = userDoc['email'] ?? "No Email Available";
+          address = userDoc['address'] ?? "No Address Available";
+          contact = userDoc['contact'] ?? "No Number Available";
           userRole = userDoc['role'] ?? "Admin";
           _isLoading = false;
         });
@@ -383,8 +387,19 @@ class _AdminProfileScreen extends State<AdminProfileScreen> {
                         value: email,
                         icon: Icons.email,
                       ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Address',
+                        value: address,
+                        icon: Icons.location_city,
+                      ),
+                      SizedBox(height: 15),
+                      _buildInfoItem(
+                        title: 'Contact Number',
+                        value: contact,
+                        icon: Icons.phone,
+                      ),
                       SizedBox(height: 40),
-
                       // Logout Button
                       Container(
                         width: double.infinity,
