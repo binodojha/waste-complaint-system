@@ -20,11 +20,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _regFormKey = GlobalKey<FormState>();
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _addressFocusNode = FocusNode();
+  final FocusNode _contactFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _confirmpasswordFocusNode = FocusNode();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmpasswordController =
       TextEditingController();
   bool _obscureText1 = true;
@@ -107,7 +111,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           decoration: InputDecoration(
                             labelText: "Email",
                             prefixIcon: Icon(
-                              Icons.person,
+                              Icons.email,
                               color: Color.fromARGB(1000, 5, 150, 105),
                             ),
                             hintText: "Enter your Email here",
@@ -130,6 +134,64 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         SizedBox(
                           height: 15,
+                        ),
+                        TextFormField(
+                          focusNode: _addressFocusNode,
+                          controller: addressController,
+                          keyboardType: TextInputType.name,
+                          decoration: InputDecoration(
+                            labelText: "Address",
+                            prefixIcon: Icon(
+                              Icons.location_city,
+                              color: Color.fromARGB(1000, 5, 150, 105),
+                            ),
+                            hintText: "Enter your address here",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Address is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          focusNode: _contactFocusNode,
+                          controller: contactController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "Mobile Number",
+                            prefixIcon: Icon(
+                              Icons.phone_android,
+                              color: Color.fromARGB(1000, 5, 150, 105),
+                            ),
+                            hintText: "Enter your Mobile number here",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Mobile Number is required";
+                            }
+                            if (value.length < 10) {
+                              return "Mobile Number should contains 10 number";
+                            }
+                            if (value.length >= 11) {
+                              return "Mobile Number should only contains 10 number";
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(
+                          height: 20,
                         ),
                         TextFormField(
                           focusNode: _passwordFocusNode,
@@ -256,6 +318,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                             'password':
                                                 passwordController.text.trim(),
                                             'role': 'User',
+                                            'address':
+                                                addressController.text.trim(),
+                                            'contact.no':
+                                                contactController.text.trim(),
                                             'image': null,
                                             'timestamp':
                                                 FieldValue.serverTimestamp()

@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: "Email",
                             prefixIcon: Icon(
-                              Icons.person,
+                              Icons.email,
                               color: Color.fromARGB(1000, 5, 150, 105),
                             ),
                             hintText: "Enter your Email here",
