@@ -3,6 +3,7 @@ import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:swms/components/admin_navigation_bar.dart';
+import 'package:swms/components/manage_user.dart';
 
 class UserManageScreen extends StatefulWidget {
   static const String id = 'user_manage_screen';
@@ -367,6 +368,8 @@ class _UserManageScreenState extends State<UserManageScreen> {
                     ],
                   ),
                 ),
+                Divider(thickness: 2, height: 40),
+                ManageUserComponent(),
               ],
             ),
           ),
