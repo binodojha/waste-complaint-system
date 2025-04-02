@@ -134,22 +134,6 @@ class _ManageUserComponentState extends State<ManageUserComponent> {
       try {
         // Delete from Firestore
         await _firestore.collection('users').doc(userId).delete();
-        // Note about Cloud Function implementation:
-        // To fully delete from Authentication as well, create a Cloud Function like:
-        //
-        // exports.deleteUser = functions.https.onCall(async (data, context) => {
-        //   // Check if request is made by an admin
-        //   if (!context.auth || !context.auth.token.admin) {
-        //     throw new functions.https.HttpsError('permission-denied', 'Only admins can delete users');
-        //   }
-        //
-        //   try {
-        //     await admin.auth().deleteUser(data.uid);
-        //     return { success: true };
-        //   } catch (error) {
-        //     throw new functions.https.HttpsError('internal', error.message);
-        //   }
-        // });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -195,6 +179,7 @@ class _ManageUserComponentState extends State<ManageUserComponent> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _filterButton("All", _selectedFilter == "All"),
+            _filterButton("User", _selectedFilter == "User"),
             _filterButton("Admin", _selectedFilter == "Admin"),
             _filterButton("Collector", _selectedFilter == "Collector"),
           ],
