@@ -157,35 +157,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                           password:
                                               passwordController.text.trim(),
                                         );
-                                        if (user != null) {
-                                          final currentUser = _auth.currentUser;
-                                          if (currentUser != null) {
-                                            // Query Firestore to get user document by email
-                                            final querySnapshot =
-                                                await _firestore
-                                                    .collection('users')
-                                                    .where('email',
-                                                        isEqualTo:
-                                                            currentUser.email)
-                                                    .limit(
-                                                        1) // Get only one result
-                                                    .get();
+                                        final currentUser = _auth.currentUser;
+                                        if (currentUser != null) {
+                                          // Query Firestore to get user document by email
+                                          final querySnapshot = await _firestore
+                                              .collection('users')
+                                              .where('email',
+                                                  isEqualTo: currentUser.email)
+                                              .limit(1) // Get only one result
+                                              .get();
 
-                                            if (querySnapshot.docs.isNotEmpty) {
-                                              final userData = querySnapshot
-                                                  .docs.first
-                                                  .data();
-                                              final role = userData['role'];
-                                              if (role == 'Admin') {
-                                                Navigator.pushNamed(
-                                                    context, AdminScreen.id);
-                                              } else if (role == 'Collector') {
-                                                Navigator.pushNamed(context,
-                                                    CollectorHomeScreen.id);
-                                              } else {
-                                                Navigator.pushNamed(
-                                                    context, UserHomeScreen.id);
-                                              }
+                                          if (querySnapshot.docs.isNotEmpty) {
+                                            final userData =
+                                                querySnapshot.docs.first.data();
+                                            final role = userData['role'];
+                                            if (role == 'Admin') {
+                                              Navigator.pushNamed(
+                                                  context, AdminScreen.id);
+                                            } else if (role == 'Collector') {
+                                              Navigator.pushNamed(context,
+                                                  CollectorHomeScreen.id);
+                                            } else {
+                                              Navigator.pushNamed(
+                                                  context, UserHomeScreen.id);
                                             }
                                           }
                                         }

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseSerivce {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   // fetch data from complaints documents
   Stream<List<Map<String, dynamic>>> getComplaints() {
     return _firestore
@@ -50,5 +52,24 @@ class FirebaseSerivce {
     } catch (e) {
       throw Exception("Error updating user image: $e");
     }
+  }
+
+  Future<String> getUserRole(String currentUser) async {
+    final currentUser = _auth.currentUser;
+    if (currentUser != null) {
+      // Query Firestore to get user document by email
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: currentUser.email)
+          .limit(1) // Get only one result
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final userData = querySnapshot.docs.first.data();
+        final userRole = userData['role'];
+        return userRole;
+      }
+    }
+    throw Exception("User role not found or user is not authenticated.");
   }
 }

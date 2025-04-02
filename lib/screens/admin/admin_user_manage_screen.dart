@@ -135,6 +135,31 @@ class _UserManageScreenState extends State<UserManageScreen> {
                         height: 10,
                       ),
                       TextFormField(
+                        focusNode: _emailFocusNode,
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Email is required";
+                          }
+                          final emailRegex = RegExp(
+                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                          if (!emailRegex.hasMatch(value)) {
+                            return "Enter a valid email";
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: "Enter Email",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
                         focusNode: _addressFocusNode,
                         controller: addressController,
                         validator: (value) {
@@ -170,31 +195,6 @@ class _UserManageScreenState extends State<UserManageScreen> {
                         },
                         decoration: InputDecoration(
                           hintText: "Mobile Number",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextFormField(
-                        focusNode: _emailFocusNode,
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Email is required";
-                          }
-                          final emailRegex = RegExp(
-                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                          if (!emailRegex.hasMatch(value)) {
-                            return "Enter a valid email";
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          hintText: "Enter Email",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
