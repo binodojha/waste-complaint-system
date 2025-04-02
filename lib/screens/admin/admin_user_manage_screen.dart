@@ -87,29 +87,25 @@ class _UserManageScreenState extends State<UserManageScreen> {
                 'assets/images/logo.png',
                 width: 100,
               ),
-              // CircleAvatar(
-              //     // backgroundImage: AssetImage(''),
-              //     ),
             ],
           ),
         ),
-        body: Container(
-          margin: EdgeInsets.only(left: 20, right: 20, top: 30),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
+        body: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Add User Section
                 Text(
                   "Add a User",
                   style: TextStyle(
+                    color: Color.fromARGB(1000, 5, 150, 105),
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 20),
                 Form(
                   key: _addUserFormKey,
                   child: Column(
@@ -131,9 +127,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       TextFormField(
                         focusNode: _emailFocusNode,
                         controller: emailController,
@@ -156,9 +150,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       TextFormField(
                         focusNode: _addressFocusNode,
                         controller: addressController,
@@ -175,9 +167,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       TextFormField(
                         focusNode: _contactFocusNode,
                         controller: contactController,
@@ -200,9 +190,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       TextFormField(
                         focusNode: _passwordFocusNode,
                         controller: passwordController,
@@ -250,9 +238,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                           return null;
                         },
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       DropDownTextField(
                         controller: roleController,
                         dropdownRadius: 8,
@@ -271,9 +257,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                               name: 'Collector', value: 'Collector'),
                         ],
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       SizedBox(
                         width: double.maxFinite,
                         child: ElevatedButton(
@@ -369,12 +353,10 @@ class _UserManageScreenState extends State<UserManageScreen> {
                             foregroundColor: Colors.white,
                             backgroundColor: Color.fromARGB(1000, 5, 150, 105),
                           ),
-                          child: Text('Add  User'),
+                          child: Text('Add User'),
                         ),
                       ),
-                      SizedBox(
-                        height: 50,
-                      ),
+                      SizedBox(height: 20),
                       if (_isLoading)
                         Center(
                           child: CircularProgressIndicator(
