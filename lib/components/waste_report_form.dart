@@ -18,7 +18,6 @@ class ReportForm extends StatefulWidget {
 }
 
 class _ReportFormState extends State<ReportForm> {
-  String? errorImageMesagge;
   final _fireauth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   final FocusNode _titleFocusNode = FocusNode();
@@ -36,6 +35,8 @@ class _ReportFormState extends State<ReportForm> {
   String? loggedInUser;
   File? newImage;
   String? base64ImageString;
+  String? imageError;
+  String? locationError;
   @override
   void initState() {
     super.initState();
@@ -43,7 +44,18 @@ class _ReportFormState extends State<ReportForm> {
   }
 
   void updateLocation(String newLocation) {
-    locationController.text = newLocation;
+    if (newLocation.startsWith("ERROR:")) {
+      setState(() {
+        locationError = newLocation.substring(7); // Remove "ERROR: " prefix
+        locationController.text = ''; // Clear the location
+      });
+      return;
+    }
+
+    setState(() {
+      locationController.text = newLocation;
+      locationError = null; // Clear any previous error
+    });
   }
 
   Future pickImage(ImageSource source) async {
@@ -95,15 +107,11 @@ class _ReportFormState extends State<ReportForm> {
               focusNode: _titleFocusNode,
               controller: titleController,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Title is required';
-                }
-                if (value.length < 5) {
-                  return 'Title must be at least 5 characters';
+                if (value == null || value.isEmpty || value.length < 5) {
+                  return 'Please enter some text';
                 }
                 return null;
               },
-              autovalidateMode: AutovalidateMode.onUserInteraction,
               maxLength: 15,
               decoration: InputDecoration(
                 hintText: "Title",
@@ -111,7 +119,6 @@ class _ReportFormState extends State<ReportForm> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                errorMaxLines: 2,
               ),
             ),
             TextFormField(
@@ -282,11 +289,11 @@ class _ReportFormState extends State<ReportForm> {
                       ),
               ),
             ),
-            if (errorImageMesagge != null)
+            if (imageError != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0, bottom: 6.0),
                 child: Text(
-                  errorImageMesagge!,
+                  imageError!,
                   style: TextStyle(
                     color: Colors.red,
                     fontSize: 12,
@@ -320,8 +327,20 @@ class _ReportFormState extends State<ReportForm> {
               height: 300,
               child: Map(
                 onLocationSelected: updateLocation,
+                draggableMarker: true,
               ),
             ),
+            if (locationError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  locationError!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
             SizedBox(
               height: 10,
             ),
@@ -329,18 +348,20 @@ class _ReportFormState extends State<ReportForm> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  if (_reportFormKey.currentState!.validate()) {
-                    setState(() {
-                      errorImageMesagge = null;
-                    });
+                  // Reset any previous error
+                  setState(() {
+                    imageError = null;
+                  });
 
-                    // Check for image
-                    if (newImage == null) {
-                      setState(() {
-                        errorImageMesagge = 'Please select an image';
-                      });
-                      return;
-                    }
+                  // Check for image
+                  if (newImage == null) {
+                    setState(() {
+                      imageError = 'Please select an image';
+                    });
+                    return;
+                  }
+
+                  if (_reportFormKey.currentState!.validate()) {
                     try {
                       await _firestore.collection('complaints').add(
                         {

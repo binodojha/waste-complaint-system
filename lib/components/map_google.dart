@@ -3,9 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Map extends StatefulWidget {
-  //Accept the callback as the parameter
   final Function(String) onLocationSelected;
-  // const Map({super.key, required this.onLocationSelected});
   final String? initialLocation;
   final bool draggableMarker;
   const Map({
@@ -14,13 +12,28 @@ class Map extends StatefulWidget {
     this.initialLocation,
     this.draggableMarker = true,
   });
+
   @override
   State<Map> createState() => _MapState();
 }
 
 class _MapState extends State<Map> {
-  LatLng mylatlong = LatLng(28.6852, 80.6216);
+  // Center of Dhangadhi
+  LatLng mylatlong = LatLng(28.685244, 80.621591);
   String address = "Dhangadhi";
+
+  // Define Dhangadhi boundaries (approximate)
+  final LatLngBounds dhangadhiBounds = LatLngBounds(
+    southwest: LatLng(28.6400, 80.5169),
+    northeast: LatLng(28.7200, 80.6700),
+  );
+
+  bool isLocationWithinDhangadhi(LatLng position) {
+    return position.latitude >= dhangadhiBounds.southwest.latitude &&
+        position.latitude <= dhangadhiBounds.northeast.latitude &&
+        position.longitude >= dhangadhiBounds.southwest.longitude &&
+        position.longitude <= dhangadhiBounds.northeast.longitude;
+  }
 
   @override
   void initState() {
@@ -35,19 +48,30 @@ class _MapState extends State<Map> {
       List<Location> locations =
           await locationFromAddress(widget.initialLocation!);
       if (locations.isNotEmpty) {
-        setState(() {
-          mylatlong =
-              LatLng(locations.first.latitude, locations.first.longitude);
-          address = widget.initialLocation!;
-        });
+        final newLocation =
+            LatLng(locations.first.latitude, locations.first.longitude);
+        if (isLocationWithinDhangadhi(newLocation)) {
+          setState(() {
+            mylatlong = newLocation;
+            address = widget.initialLocation!;
+          });
+        }
       }
     } catch (e) {
       print('Error setting initial location: $e');
     }
   }
 
-  setMarker(LatLng value) async {
+  Future<void> setMarker(LatLng value) async {
     if (!widget.draggableMarker) return;
+
+    if (!isLocationWithinDhangadhi(value)) {
+      // Show error message using callback
+      widget.onLocationSelected(
+          "ERROR: Please select a location within Dhangadhi");
+      return;
+    }
+
     mylatlong = value;
     List<Placemark> result =
         await placemarkFromCoordinates(value.latitude, value.longitude);
@@ -65,7 +89,7 @@ class _MapState extends State<Map> {
     return GoogleMap(
       initialCameraPosition: CameraPosition(
         target: mylatlong,
-        zoom: 12,
+        zoom: 13, // Increased zoom level for better view of Dhangadhi
       ),
       markers: {
         Marker(
@@ -85,6 +109,8 @@ class _MapState extends State<Map> {
               setMarker(value);
             }
           : null,
+      // Add camera bounds
+      cameraTargetBounds: CameraTargetBounds(dhangadhiBounds),
     );
   }
 }
