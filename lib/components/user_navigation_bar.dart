@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swms/screens/user/user_alerts.dart';
 import 'package:swms/screens/user/user_all_reports_screen.dart';
 import 'package:swms/screens/user/user_home_screen.dart';
 import 'package:swms/screens/user/user_profile_screen.dart';
@@ -20,8 +21,10 @@ class UserNavBar extends StatelessWidget {
         if (index == 0 && currentIndex != 0) {
           Navigator.pushReplacementNamed(context, UserHomeScreen.id);
         } else if (index == 1 && currentIndex != 1) {
-          Navigator.pushReplacementNamed(context, UserReports.id);
+          Navigator.pushReplacementNamed(context, UserAlerts.id);
         } else if (index == 2 && currentIndex != 2) {
+          Navigator.pushReplacementNamed(context, UserReports.id);
+        } else if (index == 3 && currentIndex != 3) {
           Navigator.pushReplacementNamed(context, UserProfileScreen.id);
         }
       },
@@ -29,6 +32,10 @@ class UserNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: "Home",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.notifications),
+          label: "Alerts",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.report),

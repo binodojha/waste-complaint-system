@@ -20,7 +20,7 @@ class _AllUserReports extends State<UserReports> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: UserNavBar(
-        currentIndex: 1,
+        currentIndex: 2,
       ),
       appBar: AppBar(
         automaticallyImplyLeading: false,

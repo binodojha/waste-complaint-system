@@ -159,7 +159,7 @@ class _UserProfileScreen extends State<UserProfileScreen> {
       children: [
         Scaffold(
           bottomNavigationBar: UserNavBar(
-            currentIndex: 2,
+            currentIndex: 3,
           ),
           appBar: AppBar(
             automaticallyImplyLeading: false,
