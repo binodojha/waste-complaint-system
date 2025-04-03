@@ -97,16 +97,13 @@ class _ManageUserComponentState extends State<ManageUserComponent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "This will delete the user from the Firestore database only.",
+                    "This will delete the user permanentely.",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  Text(
-                    "IMPORTANT: The user will still be able to login with their credentials. To fully delete the user, you'll need to implement a Cloud Function to delete from Firebase Authentication.",
-                  ),
                   SizedBox(height: 10),
                   Text(
-                    "Do you want to continue with database deletion only?",
+                    "It is an Irreversible process. Do you want to continue with deletion ?",
                     style: TextStyle(fontStyle: FontStyle.italic),
                   ),
                 ],

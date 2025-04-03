@@ -172,6 +172,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
                       TextFormField(
                         focusNode: _contactFocusNode,
                         controller: contactController,
+                        keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Mobile Number is required";
