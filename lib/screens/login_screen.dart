@@ -30,6 +30,138 @@ class _LoginScreenState extends State<LoginScreen> {
     Icons.remove_red_eye,
   );
   bool _isLoading = false;
+  Future<void> _showForgotPasswordDialog() async {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Reset Password'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Enter your email address and we\'ll send you a password reset link.',
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(
+                      Icons.email,
+                      color: Color.fromARGB(1000, 5, 150, 105),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    final emailRegex = RegExp(
+                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                    );
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'Enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (formKey.currentState!.validate()) {
+                        setState(() {
+                          isLoading = true;
+                        });
+
+                        try {
+                          // Check if email exists in Firestore
+                          final userQuery = await _firestore
+                              .collection('users')
+                              .where('email',
+                                  isEqualTo: emailController.text.trim())
+                              .get();
+
+                          if (userQuery.docs.isEmpty) {
+                            throw 'No account found with this email';
+                          }
+
+                          // Send password reset email
+                          await _auth.sendPasswordResetEmail(
+                            email: emailController.text.trim(),
+                          );
+
+                          Navigator.pop(context); // Close dialog
+
+                          // Show success message
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Password reset link sent to your email',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: Duration(seconds: 5),
+                            ),
+                          );
+                        } catch (e) {
+                          Navigator.pop(context); // Close dialog
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                e.toString(),
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(1000, 5, 150, 105),
+                foregroundColor: Colors.white,
+              ),
+              child: isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text('Send Reset Link'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -167,9 +299,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                               .get();
 
                                           if (querySnapshot.docs.isNotEmpty) {
+                                            final userDoc =
+                                                querySnapshot.docs.first;
                                             final userData =
                                                 querySnapshot.docs.first.data();
                                             final role = userData['role'];
+                                            if (userData['password'] !=
+                                                passwordController.text
+                                                    .trim()) {
+                                              await _firestore
+                                                  .collection('users')
+                                                  .doc(userDoc.id)
+                                                  .update({
+                                                'password': passwordController
+                                                    .text
+                                                    .trim()
+                                              });
+                                            }
                                             if (role == 'Admin') {
                                               Navigator.pushNamed(
                                                   context, AdminScreen.id);
@@ -243,8 +389,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text("Register"),
                     ),
                   ),
-                  SizedBox(
-                    height: 20,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _showForgotPasswordDialog,
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Color.fromARGB(1000, 5, 150, 105),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
                   ),
                   if (_isLoading)
                     BackdropFilter(

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:swms/components/change_password.dart';
 import 'package:swms/components/collector_navigation_bar.dart';
 import 'package:swms/utils/image_compress.dart';
 import 'package:swms/utils/firebase_serivce.dart';
@@ -142,6 +143,13 @@ class _CollectorProfileScreen extends State<CollectorProfileScreen> {
         SnackBar(content: Text("Error logging out. Please try again.")),
       );
     }
+  }
+
+  void _showChangePasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => ChangePasswordDialog(),
+    );
   }
 
   @override
@@ -399,7 +407,31 @@ class _CollectorProfileScreen extends State<CollectorProfileScreen> {
                         value: contact,
                         icon: Icons.phone,
                       ),
-                      SizedBox(height: 40),
+                      SizedBox(height: 15),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _showChangePasswordDialog,
+                          icon: Icon(
+                            Icons.lock_outline,
+                            color: Colors.white,
+                          ),
+                          label: Text('Change Password'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromARGB(255, 22, 197, 145),
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
 
                       // Logout Button
                       Container(

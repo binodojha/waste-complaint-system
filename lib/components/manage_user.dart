@@ -25,6 +25,7 @@ class _ManageUserComponentState extends State<ManageUserComponent> {
 
   Future<void> _fetchUsers() async {
     setState(() {
+      _selectedFilter = "All";
       _isLoading = true;
     });
 
